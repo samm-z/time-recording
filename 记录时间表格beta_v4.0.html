@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间记录表</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 800px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        .tag {
+            color: blue;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 60px;
+            text-align: center;
+        }
+
+        #activity {
+            width: 150px;
+        }
+
+        button {
+            padding: 5px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .tables-container {
+            margin-top: 15px;
+        }
+
+        .small-table {
+            width: 100%;
+        }
+
+        .action-btn {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+            color: red;
+        }
+
+        .modify-btn {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+            color: green;
+        }
+
+        .tag-management {
+            margin-top: 10px;
+        }
+
+        .tag-list {
+            margin-top: 10px;
+        }
+
+        .tag-item {
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .delete-tag-btn {
+            cursor: pointer;
+            margin-left: 5px;
+            color: red;
+        }
+
+        .summary-table {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .summary-table th, .summary-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .summary-table th {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>时间记录表</h1>
+
+        <form>
+            <div class="form-group">
+                <label>开始时间：</label>
+                <input type="number" id="startHour" min="0" max="23" placeholder="小时"> :
+                <input type="number" id="startMinute" min="0" max="59" placeholder="分钟">
+            </div>
+
+            <div class="form-group">
+                <label>结束时间：</label>
+                <input type="number" id="endHour" min="0" max="23" placeholder="小时"> :
+                <input type="number" id="endMinute" min="0" max="59" placeholder="分钟">
+            </div>
+
+            <div class="form-group">
+                <label>做了什么：</label>
+                <input type="text" id="activity">
+            </div>
+
+            <div class="form-group">
+                <label>标签：</label>
+                <input type="text" id="tag" class="tag" list="tagOptions">
+                <datalist id="tagOptions"></datalist>
+            </div>
+
+            <button type="submit">提交</button>
+            <button type="button" id="clearButton">清除记录</button>
+        </form>
+
+        <!-- 事件记录表格 -->
+        <table class="small-table">
+            <thead>
+                <tr>
+                    <th>时间段</th>
+                    <th>做了什么</th>
+                    <th>标签</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="recordTable"></tbody>
+        </table>
+
+        <!-- 标签管理 -->
+        <div class="tag-management">
+            <h3>标签管理</h3>
+            <div class="tag-list" id="tagManagementTable"></div>
+        </div>
+
+        <!-- 时间分配统计表格 -->
+        <h3>时间分配统计</h3>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>活动</th>
+                    <th>时间（分钟）</th>
+                    <th>百分比</th>
+                </tr>
+            </thead>
+            <tbody id="activitySummaryTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let tags = new Set(); // 用来存储标签，避免重复
+        let tagOptions = document.getElementById("tagOptions"); // 标签选择框
+        let records = []; // 存储记录的数组
+
+        // 保存数据到 localStorage
+        function saveData() {
+            let tagList = [...tags]; // 将标签集合转为数组保存
+            localStorage.setItem("records", JSON.stringify(records));
+            localStorage.setItem("tags", JSON.stringify(tagList));
+        }
+
+        // 从 localStorage 加载数据
+        function loadData() {
+            records = JSON.parse(localStorage.getItem("records") || "[]");
+            let tagList = JSON.parse(localStorage.getItem("tags") || "[]");
+
+            let table = document.getElementById("recordTable");
+            records.forEach((record, index) => {
+                let row = table.insertRow();
+                row.setAttribute('data-index', index);
+                row.innerHTML = `
+                    <td>${record.time}</td>
+                    <td>${record.activity}</td>
+                    <td class="tag">${record.tag}</td>
+                    <td>
+                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
+                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
+                    </td>
+                `;
+            });
+
+            tagList.forEach(tag => {
+                tags.add(tag);
+                let option = document.createElement("option");
+                option.value = tag;
+                tagOptions.appendChild(option);
+                addTagToManagementTable(tag);
+            });
+
+            calculateTimeDistribution(); // 加载数据时计算时间分配
+        }
+
+        // 添加标签到标签管理表格
+        function addTagToManagementTable(tag) {
+            let tagManagementTable = document.getElementById("tagManagementTable");
+            // 检查标签是否已经存在
+            let exists = [...tagManagementTable.children].some(tagItem => tagItem.innerText === tag);
+            if (!exists) {
+                let tagItem = document.createElement("div");
+                tagItem.classList.add("tag-item");
+                tagItem.innerHTML = `
+                    ${tag}
+                    <span class="delete-tag-btn" onclick="deleteTag('${tag}')">删除</span>
+                `;
+                tagManagementTable.appendChild(tagItem);
+            }
+        }
+
+        // 验证时间是否有效
+        function validateTime(hour, minute) {
+            if (hour < 0 || hour > 23) {
+                alert("小时必须在 0 到 23 之间！");
+                return false;
+            }
+            if (minute < 0 || minute > 59) {
+                alert("分钟必须在 0 到 59 之间！");
+                return false;
+            }
+            return true;
+        }
+
+        // 验证活动是否为空
+        function validateActivity(activity) {
+            if (activity.trim() === "") {
+                alert("‘做了什么’字段不能为空！");
+                return false;
+            }
+            return true;
+        }
+
+        // 修改记录
+        function modifyRecord(index) {
+            let record = records[index];
+            document.getElementById("startHour").value = parseInt(record.time.split(":")[0]);
+            document.getElementById("startMinute").value = parseInt(record.time.split(":")[1].split(" - ")[0]);
+            document.getElementById("endHour").value = parseInt(record.time.split(" - ")[1].split(":")[0]);
+            document.getElementById("endMinute").value = parseInt(record.time.split(" - ")[1].split(":")[1]);
+            document.getElementById("activity").value = record.activity;
+            document.getElementById("tag").value = record.tag;
+
+            deleteRecord(index);  // 删除旧记录，用户可以重新提交修改后的记录
+        }
+
+        // 删除记录
+        function deleteRecord(index) {
+            records.splice(index, 1);
+            document.querySelector(`#recordTable tr[data-index='${index}']`).remove();
+            saveData();
+            calculateTimeDistribution(); // 删除记录后重新计算时间分配
+        }
+
+        // 删除标签
+        function deleteTag(tag) {
+            tags.delete(tag);
+
+            // 删除标签对应的所有记录中的标签
+            records.forEach(record => {
+                if (record.tag === tag) {
+                    record.tag = ''; // 清空标签
+                }
+            });
+
+            // 更新记录表格
+            let table = document.getElementById("recordTable");
+            [...table.rows].forEach(row => {
+                let tagCell = row.cells[2];
+                if (tagCell && tagCell.innerText === tag) {
+                    tagCell.innerText = ''; // 清除标签列中的该标签
+                }
+            });
+
+            // 从标签管理表格移除
+            let tagManagementTable = document.getElementById("tagManagementTable");
+            let tagItems = tagManagementTable.querySelectorAll(".tag-item");
+            tagItems.forEach(tagItem => {
+                if (tagItem.innerText.includes(tag)) {
+                    tagItem.remove();
+                }
+            });
+
+            // 更新已保存的数据
+            saveData();
+
+            // 更新标签选择框，移除已经删除的标签
+            let tagOptionsList = document.getElementById("tagOptions").children;
+            for (let option of tagOptionsList) {
+                if (option.value === tag) {
+                    option.remove();
+                }
+            }
+
+            calculateTimeDistribution(); // 删除标签后重新计算时间分配
+        }
+
+        // 格式化时间为两位数
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        // 对记录按时间排序
+        function sortRecordsByTime() {
+            records.sort((a, b) => {
+                let aStart = a.time.split(" - ")[0];
+                let bStart = b.time.split(" - ")[0];
+
+                let aStartParts = aStart.split(":");
+                let bStartParts = bStart.split(":");
+
+                return (parseInt(aStartParts[0]) - parseInt(bStartParts[0])) || (parseInt(aStartParts[1]) - parseInt(bStartParts[1]));
+            });
+        }
+
+        // 提交表单
+        document.querySelector("form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let startHour = parseInt(document.getElementById("startHour").value);
+            let startMinute = parseInt(document.getElementById("startMinute").value);
+            let endHour = parseInt(document.getElementById("endHour").value);
+            let endMinute = parseInt(document.getElementById("endMinute").value);
+            let activity = document.getElementById("activity").value;
+            let tag = document.getElementById("tag").value;
+
+            if (!validateTime(startHour, startMinute) || !validateTime(endHour, endMinute)) {
+                return; // 如果时间无效，停止提交
+            }
+
+            if (!validateActivity(activity)) {
+                return; // 如果活动无效，停止提交
+            }
+
+            if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
+                alert("开始时间不能晚于结束时间！");
+                return;
+            }
+
+            // 格式化时间
+            let recordTime = `${formatTime(startHour)}:${formatTime(startMinute)} - ${formatTime(endHour)}:${formatTime(endMinute)}`;
+            let record = {
+                time: recordTime,
+                activity: activity,
+                tag: tag
+            };
+
+            records.push(record);
+            sortRecordsByTime(); // 排序记录
+            saveData();
+
+            // 更新表格
+            let table = document.getElementById("recordTable");
+            table.innerHTML = ""; // 清空表格
+            records.forEach((record, index) => {
+                let row = table.insertRow();
+                row.setAttribute('data-index', index);
+                row.innerHTML = `
+                    <td>${record.time}</td>
+                    <td>${record.activity}</td>
+                    <td class="tag">${record.tag}</td>
+                    <td>
+                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
+                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
+                    </td>
+                `;
+            });
+
+            // 如果标签不为空且标签未存在，则添加到标签管理表格
+            if (tag && !tags.has(tag)) {
+                tags.add(tag);
+                let option = document.createElement("option");
+                option.value = tag;
+                tagOptions.appendChild(option);
+                addTagToManagementTable(tag);
+            }
+
+            // 保存数据
+            saveData();
+
+            // 清空输入框
+            document.getElementById("startHour").value = "";
+            document.getElementById("startMinute").value = "";
+            document.getElementById("endHour").value = "";
+            document.getElementById("endMinute").value = "";
+            document.getElementById("activity").value = "";
+            document.getElementById("tag").value = "";
+
+            calculateTimeDistribution(); // 提交新记录后重新计算时间分配
+        });
+
+        // 清除记录
+        document.getElementById("clearButton").addEventListener("click", function() {
+            localStorage.removeItem("records");
+            records = [];
+            let table = document.getElementById("recordTable");
+            table.innerHTML = "";
+            calculateTimeDistribution(); // 清除记录后重新计算时间分配
+        });
+
+        // 自动填充结束时间
+        document.getElementById("startHour").addEventListener("input", function() {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
+
+        document.getElementById("startMinute").addEventListener("input", function() {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
+
+        // 计算时间分配
+        function calculateTimeDistribution() {
+            let activitySummary = {}; // 用来存储每个活动的总时间
+            let totalTime = 0; // 总时间
+
+            records.forEach(record => {
+                let activity = record.activity || "未分类"; // 如果没有活动，归类为“未分类”
+                let timeParts = record.time.split(" - ");
+                let start = timeParts[0].split(":");
+                let end = timeParts[1].split(":");
+
+                let startHour = parseInt(start[0]);
+                let startMinute = parseInt(start[1]);
+                let endHour = parseInt(end[0]);
+                let endMinute = parseInt(end[1]);
+
+                let duration = (endHour - startHour) * 60 + (endMinute - startMinute); // 计算时间差（分钟）
+                totalTime += duration;
+
+                // 计算活动时间
+                if (activitySummary[activity]) {
+                    activitySummary[activity] += duration;
+                } else {
+                    activitySummary[activity] = duration;
+                }
+            });
+
+            // 更新活动计算结果表格
+            let activitySummaryTableBody = document.getElementById("activitySummaryTableBody");
+            activitySummaryTableBody.innerHTML = ""; // 清空表格
+
+            for (let activity in activitySummary) {
+                let row = activitySummaryTableBody.insertRow();
+                let time = activitySummary[activity];
+                let percentage = ((time / totalTime) * 100).toFixed(2); // 计算百分比
+                row.innerHTML = `
+                    <td>${activity}</td>
+                    <td>${time} 分钟</td>
+                    <td>${percentage}%</td>
+                `;
+            }
+        }
+
+        loadData(); // 加载数据
+    </script>
+</body>
+</html>
