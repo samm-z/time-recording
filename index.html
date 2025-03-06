@@ -124,12 +124,23 @@
         .summary-table th {
             background-color: #f5f5f5;
         }
+
+        .date-picker {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>时间记录表</h1>
 
+        <!-- 日期选择器 -->
+        <div class="date-picker">
+            <label>选择日期：</label>
+            <input type="date" id="datePicker">
+        </div>
+
+        <!-- 事件记录表单 -->
         <form>
             <div class="form-group">
                 <label>开始时间：</label>
@@ -196,6 +207,16 @@
         let tagOptions = document.getElementById("tagOptions"); // 标签选择框
         let records = []; // 存储记录的数组
 
+        // 初始化日期选择器为当前日期
+        function initializeDatePicker() {
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            let day = String(today.getDate()).padStart(2, '0');
+            let formattedDate = `${year}-${month}-${day}`;
+            document.getElementById("datePicker").value = formattedDate;
+        }
+
         // 保存数据到 localStorage
         function saveData() {
             let tagList = [...tags]; // 将标签集合转为数组保存
@@ -208,21 +229,6 @@
             records = JSON.parse(localStorage.getItem("records") || "[]");
             let tagList = JSON.parse(localStorage.getItem("tags") || "[]");
 
-            let table = document.getElementById("recordTable");
-            records.forEach((record, index) => {
-                let row = table.insertRow();
-                row.setAttribute('data-index', index);
-                row.innerHTML = `
-                    <td>${record.time}</td>
-                    <td>${record.activity}</td>
-                    <td class="tag">${record.tag}</td>
-                    <td>
-                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
-                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
-                    </td>
-                `;
-            });
-
             tagList.forEach(tag => {
                 tags.add(tag);
                 let option = document.createElement("option");
@@ -231,6 +237,7 @@
                 addTagToManagementTable(tag);
             });
 
+            updateRecordsTable(); // 加载数据时更新表格
             calculateTimeDistribution(); // 加载数据时计算时间分配
         }
 
@@ -288,8 +295,8 @@
         // 删除记录
         function deleteRecord(index) {
             records.splice(index, 1);
-            document.querySelector(`#recordTable tr[data-index='${index}']`).remove();
             saveData();
+            updateRecordsTable(); // 删除记录后更新表格
             calculateTimeDistribution(); // 删除记录后重新计算时间分配
         }
 
@@ -305,13 +312,7 @@
             });
 
             // 更新记录表格
-            let table = document.getElementById("recordTable");
-            [...table.rows].forEach(row => {
-                let tagCell = row.cells[2];
-                if (tagCell && tagCell.innerText === tag) {
-                    tagCell.innerText = ''; // 清除标签列中的该标签
-                }
-            });
+            updateRecordsTable();
 
             // 从标签管理表格移除
             let tagManagementTable = document.getElementById("tagManagementTable");
@@ -364,6 +365,7 @@
             let endMinute = parseInt(document.getElementById("endMinute").value);
             let activity = document.getElementById("activity").value;
             let tag = document.getElementById("tag").value;
+            let selectedDate = document.getElementById("datePicker").value;
 
             if (!validateTime(startHour, startMinute) || !validateTime(endHour, endMinute)) {
                 return; // 如果时间无效，停止提交
@@ -381,6 +383,7 @@
             // 格式化时间
             let recordTime = `${formatTime(startHour)}:${formatTime(startMinute)} - ${formatTime(endHour)}:${formatTime(endMinute)}`;
             let record = {
+                date: selectedDate, // 记录日期
                 time: recordTime,
                 activity: activity,
                 tag: tag
@@ -391,21 +394,7 @@
             saveData();
 
             // 更新表格
-            let table = document.getElementById("recordTable");
-            table.innerHTML = ""; // 清空表格
-            records.forEach((record, index) => {
-                let row = table.insertRow();
-                row.setAttribute('data-index', index);
-                row.innerHTML = `
-                    <td>${record.time}</td>
-                    <td>${record.activity}</td>
-                    <td class="tag">${record.tag}</td>
-                    <td>
-                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
-                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
-                    </td>
-                `;
-            });
+            updateRecordsTable();
 
             // 如果标签不为空且标签未存在，则添加到标签管理表格
             if (tag && !tags.has(tag)) {
@@ -434,8 +423,7 @@
         document.getElementById("clearButton").addEventListener("click", function() {
             localStorage.removeItem("records");
             records = [];
-            let table = document.getElementById("recordTable");
-            table.innerHTML = "";
+            updateRecordsTable(); // 清除记录后更新表格
             calculateTimeDistribution(); // 清除记录后重新计算时间分配
         });
 
@@ -460,12 +448,37 @@
             }
         });
 
+        // 更新事件记录表格
+        function updateRecordsTable() {
+            let selectedDate = document.getElementById("datePicker").value;
+            let filteredRecords = records.filter(record => record.date === selectedDate);
+
+            let table = document.getElementById("recordTable");
+            table.innerHTML = ""; // 清空表格
+            filteredRecords.forEach((record, index) => {
+                let row = table.insertRow();
+                row.setAttribute('data-index', index);
+                row.innerHTML = `
+                    <td>${record.time}</td>
+                    <td>${record.activity}</td>
+                    <td class="tag">${record.tag}</td>
+                    <td>
+                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
+                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
+                    </td>
+                `;
+            });
+        }
+
         // 计算时间分配
         function calculateTimeDistribution() {
+            let selectedDate = document.getElementById("datePicker").value;
+            let filteredRecords = records.filter(record => record.date === selectedDate);
+
             let activitySummary = {}; // 用来存储每个活动的总时间
             let totalTime = 0; // 总时间
 
-            records.forEach(record => {
+            filteredRecords.forEach(record => {
                 let activity = record.activity || "未分类"; // 如果没有活动，归类为“未分类”
                 let timeParts = record.time.split(" - ");
                 let start = timeParts[0].split(":");
@@ -503,6 +516,13 @@
             }
         }
 
+        // 监听日期选择器的变化
+        document.getElementById("datePicker").addEventListener("change", function() {
+            updateRecordsTable(); // 更新事件记录表格
+            calculateTimeDistribution(); // 重新计算时间分配
+        });
+
+        initializeDatePicker(); // 初始化日期选择器
         loadData(); // 加载数据
     </script>
 </body>
