@@ -5,7 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>时间记录表</title>
     <link rel="icon" href="calendar.png" type="image/png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
     <style>
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            #activity {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 5px;
+            }
+
+            button {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -131,6 +191,7 @@
     </style>
 </head>
 <body>
+    
     <div class="container">
         <h1>时间记录表</h1>
 
@@ -291,6 +352,8 @@
 
             deleteRecord(index);  // 删除旧记录，用户可以重新提交修改后的记录
         }
+
+        
 
         // 删除记录
         function deleteRecord(index) {
