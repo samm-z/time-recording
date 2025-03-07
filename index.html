@@ -199,6 +199,14 @@
                 </tr>
             </thead>
             <tbody id="activitySummaryTableBody"></tbody>
+            <thead>
+                <tr>
+                    <th>标签</th>
+                    <th>时间（分钟）</th>
+                    <th>百分比</th>
+                </tr>
+            </thead>
+            <tbody id="tagSummaryTableBody"></tbody>
         </table>
     </div>
 
@@ -206,7 +214,7 @@
         let tags = new Set(); // 用来存储标签，避免重复
         let tagOptions = document.getElementById("tagOptions"); // 标签选择框
         let records = []; // 存储记录的数组
-
+    
         // 初始化日期选择器为当前日期
         function initializeDatePicker() {
             let today = new Date();
@@ -216,19 +224,19 @@
             let formattedDate = `${year}-${month}-${day}`;
             document.getElementById("datePicker").value = formattedDate;
         }
-
+    
         // 保存数据到 localStorage
         function saveData() {
             let tagList = [...tags]; // 将标签集合转为数组保存
             localStorage.setItem("records", JSON.stringify(records));
             localStorage.setItem("tags", JSON.stringify(tagList));
         }
-
+    
         // 从 localStorage 加载数据
         function loadData() {
             records = JSON.parse(localStorage.getItem("records") || "[]");
             let tagList = JSON.parse(localStorage.getItem("tags") || "[]");
-
+    
             tagList.forEach(tag => {
                 tags.add(tag);
                 let option = document.createElement("option");
@@ -236,11 +244,11 @@
                 tagOptions.appendChild(option);
                 addTagToManagementTable(tag);
             });
-
+    
             updateRecordsTable(); // 加载数据时更新表格
             calculateTimeDistribution(); // 加载数据时计算时间分配
         }
-
+    
         // 添加标签到标签管理表格
         function addTagToManagementTable(tag) {
             let tagManagementTable = document.getElementById("tagManagementTable");
@@ -256,7 +264,7 @@
                 tagManagementTable.appendChild(tagItem);
             }
         }
-
+    
         // 验证时间是否有效
         function validateTime(hour, minute) {
             if (hour < 0 || hour > 23) {
@@ -269,7 +277,7 @@
             }
             return true;
         }
-
+    
         // 验证活动是否为空
         function validateActivity(activity) {
             if (activity.trim() === "") {
@@ -278,7 +286,7 @@
             }
             return true;
         }
-
+    
         // 修改记录
         function modifyRecord(index) {
             let record = records[index];
@@ -288,10 +296,10 @@
             document.getElementById("endMinute").value = parseInt(record.time.split(" - ")[1].split(":")[1]);
             document.getElementById("activity").value = record.activity;
             document.getElementById("tag").value = record.tag;
-
-            deleteRecord(index);  // 删除旧记录，用户可以重新提交修改后的记录
+    
+            deleteRecord(index); // 删除旧记录，用户可以重新提交修改后的记录
         }
-
+    
         // 删除记录
         function deleteRecord(index) {
             records.splice(index, 1);
@@ -299,21 +307,21 @@
             updateRecordsTable(); // 删除记录后更新表格
             calculateTimeDistribution(); // 删除记录后重新计算时间分配
         }
-
+    
         // 删除标签
         function deleteTag(tag) {
             tags.delete(tag);
-
+    
             // 删除标签对应的所有记录中的标签
             records.forEach(record => {
                 if (record.tag === tag) {
                     record.tag = ''; // 清空标签
                 }
             });
-
+    
             // 更新记录表格
             updateRecordsTable();
-
+    
             // 从标签管理表格移除
             let tagManagementTable = document.getElementById("tagManagementTable");
             let tagItems = tagManagementTable.querySelectorAll(".tag-item");
@@ -322,10 +330,10 @@
                     tagItem.remove();
                 }
             });
-
+    
             // 更新已保存的数据
             saveData();
-
+    
             // 更新标签选择框，移除已经删除的标签
             let tagOptionsList = document.getElementById("tagOptions").children;
             for (let option of tagOptionsList) {
@@ -333,32 +341,32 @@
                     option.remove();
                 }
             }
-
+    
             calculateTimeDistribution(); // 删除标签后重新计算时间分配
         }
-
+    
         // 格式化时间为两位数
         function formatTime(time) {
             return time < 10 ? `0${time}` : time;
         }
-
+    
         // 对记录按时间排序
         function sortRecordsByTime() {
             records.sort((a, b) => {
                 let aStart = a.time.split(" - ")[0];
                 let bStart = b.time.split(" - ")[0];
-
+    
                 let aStartParts = aStart.split(":");
                 let bStartParts = bStart.split(":");
-
+    
                 return (parseInt(aStartParts[0]) - parseInt(bStartParts[0])) || (parseInt(aStartParts[1]) - parseInt(bStartParts[1]));
             });
         }
-
+    
         // 提交表单
-        document.querySelector("form").addEventListener("submit", function(event) {
+        document.querySelector("form").addEventListener("submit", function (event) {
             event.preventDefault();
-
+    
             let startHour = parseInt(document.getElementById("startHour").value);
             let startMinute = parseInt(document.getElementById("startMinute").value);
             let endHour = parseInt(document.getElementById("endHour").value);
@@ -366,20 +374,20 @@
             let activity = document.getElementById("activity").value;
             let tag = document.getElementById("tag").value;
             let selectedDate = document.getElementById("datePicker").value;
-
+    
             if (!validateTime(startHour, startMinute) || !validateTime(endHour, endMinute)) {
                 return; // 如果时间无效，停止提交
             }
-
+    
             if (!validateActivity(activity)) {
                 return; // 如果活动无效，停止提交
             }
-
+    
             if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
                 alert("开始时间不能晚于结束时间！");
                 return;
             }
-
+    
             // 格式化时间
             let recordTime = `${formatTime(startHour)}:${formatTime(startMinute)} - ${formatTime(endHour)}:${formatTime(endMinute)}`;
             let record = {
@@ -388,14 +396,14 @@
                 activity: activity,
                 tag: tag
             };
-
+    
             records.push(record);
             sortRecordsByTime(); // 排序记录
             saveData();
-
+    
             // 更新表格
             updateRecordsTable();
-
+    
             // 如果标签不为空且标签未存在，则添加到标签管理表格
             if (tag && !tags.has(tag)) {
                 tags.add(tag);
@@ -404,10 +412,10 @@
                 tagOptions.appendChild(option);
                 addTagToManagementTable(tag);
             }
-
+    
             // 保存数据
             saveData();
-
+    
             // 清空输入框
             document.getElementById("startHour").value = "";
             document.getElementById("startMinute").value = "";
@@ -415,44 +423,44 @@
             document.getElementById("endMinute").value = "";
             document.getElementById("activity").value = "";
             document.getElementById("tag").value = "";
-
+    
             calculateTimeDistribution(); // 提交新记录后重新计算时间分配
         });
-
+    
         // 清除记录
-        document.getElementById("clearButton").addEventListener("click", function() {
+        document.getElementById("clearButton").addEventListener("click", function () {
             localStorage.removeItem("records");
             records = [];
             updateRecordsTable(); // 清除记录后更新表格
             calculateTimeDistribution(); // 清除记录后重新计算时间分配
         });
-
+    
         // 自动填充结束时间
-        document.getElementById("startHour").addEventListener("input", function() {
+        document.getElementById("startHour").addEventListener("input", function () {
             let startHour = document.getElementById("startHour").value;
             let startMinute = document.getElementById("startMinute").value;
-
+    
             if (startHour && startMinute) {
                 document.getElementById("endHour").value = startHour;
                 document.getElementById("endMinute").value = startMinute;
             }
         });
-
-        document.getElementById("startMinute").addEventListener("input", function() {
+    
+        document.getElementById("startMinute").addEventListener("input", function () {
             let startHour = document.getElementById("startHour").value;
             let startMinute = document.getElementById("startMinute").value;
-
+    
             if (startHour && startMinute) {
                 document.getElementById("endHour").value = startHour;
                 document.getElementById("endMinute").value = startMinute;
             }
         });
-
+    
         // 更新事件记录表格
         function updateRecordsTable() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
-
+    
             let table = document.getElementById("recordTable");
             table.innerHTML = ""; // 清空表格
             filteredRecords.forEach((record, index) => {
@@ -469,41 +477,50 @@
                 `;
             });
         }
-
+    
         // 计算时间分配
         function calculateTimeDistribution() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
-
+    
             let activitySummary = {}; // 用来存储每个活动的总时间
+            let tagSummary = {}; // 用来存储每个标签的总时间
             let totalTime = 0; // 总时间
-
+    
             filteredRecords.forEach(record => {
                 let activity = record.activity || "未分类"; // 如果没有活动，归类为“未分类”
+                let tag = record.tag || "未分类"; // 如果没有标签，归类为“未分类”
                 let timeParts = record.time.split(" - ");
                 let start = timeParts[0].split(":");
                 let end = timeParts[1].split(":");
-
+    
                 let startHour = parseInt(start[0]);
                 let startMinute = parseInt(start[1]);
                 let endHour = parseInt(end[0]);
                 let endMinute = parseInt(end[1]);
-
+    
                 let duration = (endHour - startHour) * 60 + (endMinute - startMinute); // 计算时间差（分钟）
                 totalTime += duration;
-
+    
                 // 计算活动时间
                 if (activitySummary[activity]) {
                     activitySummary[activity] += duration;
                 } else {
                     activitySummary[activity] = duration;
                 }
+    
+                // 计算标签时间
+                if (tagSummary[tag]) {
+                    tagSummary[tag] += duration;
+                } else {
+                    tagSummary[tag] = duration;
+                }
             });
-
+    
             // 更新活动计算结果表格
             let activitySummaryTableBody = document.getElementById("activitySummaryTableBody");
             activitySummaryTableBody.innerHTML = ""; // 清空表格
-
+    
             for (let activity in activitySummary) {
                 let row = activitySummaryTableBody.insertRow();
                 let time = activitySummary[activity];
@@ -514,14 +531,29 @@
                     <td>${percentage}%</td>
                 `;
             }
+    
+            // 更新标签时间占比表格
+            let tagSummaryTableBody = document.getElementById("tagSummaryTableBody");
+            tagSummaryTableBody.innerHTML = ""; // 清空表格
+    
+            for (let tag in tagSummary) {
+                let row = tagSummaryTableBody.insertRow();
+                let time = tagSummary[tag];
+                let percentage = ((time / totalTime) * 100).toFixed(2); // 计算百分比
+                row.innerHTML = `
+                    <td>${tag}</td>
+                    <td>${time} 分钟</td>
+                    <td>${percentage}%</td>
+                `;
+            }
         }
-
+    
         // 监听日期选择器的变化
-        document.getElementById("datePicker").addEventListener("change", function() {
+        document.getElementById("datePicker").addEventListener("change", function () {
             updateRecordsTable(); // 更新事件记录表格
             calculateTimeDistribution(); // 重新计算时间分配
         });
-
+    
         initializeDatePicker(); // 初始化日期选择器
         loadData(); // 加载数据
     </script>
