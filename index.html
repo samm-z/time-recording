@@ -59,6 +59,10 @@
         input {
             width: 60px;
             text-align: center;
+        }     
+        
+        .dataPicker {
+            width: 110px; /* 调整宽度，可根据需要修改 */
         }
 
         #activity {
@@ -189,6 +193,7 @@
         .modal-content button:hover {
             opacity: 0.9;
         }
+
     </style>
 </head>
 <body>
@@ -198,7 +203,7 @@
         <!-- 日期选择器 -->
         <div class="date-picker">
             <label>选择日期：</label>
-            <input type="date" id="datePicker">
+            <input type="date" id="datePicker" class="dataPicker">
         </div>
 
         <!-- 事件记录表单 -->
@@ -216,7 +221,7 @@
             </div>
 
             <div class="form-group">
-                <label>做了什么：</label>
+                <label>事件：</label>
                 <input type="text" id="activity">
             </div>
 
@@ -235,7 +240,7 @@
             <thead>
                 <tr>
                     <th>时间段</th>
-                    <th>做了什么</th>
+                    <th>事件</th>
                     <th>标签</th>
                     <th>操作</th>
                 </tr>
@@ -274,20 +279,21 @@
     <!-- 清除记录确认模态框 -->
     <div id="clearConfirmationModal" class="modal">
         <div class="modal-content">
-            <p>确定要清除当前日期的所有记录吗？</p>
+            <p id="modalMessage">确定要清除当前日期的所有记录吗？</p>
             <button id="confirmClearButton">确定</button>
             <button id="cancelClearButton">取消</button>
         </div>
     </div>
 
     <div class="footer">
-        ©️Sam Zhang v1.3
+        ©️Sam Zhang v1.4
     </div>
     
     <script>
         let tags = new Set();
         let tagOptions = document.getElementById("tagOptions");
         let records = [];
+        let currentIndexToDelete = null; // 用于存储当前要删除的记录的索引
 
         function initializeDatePicker() {
             let today = new Date();
@@ -348,7 +354,7 @@
 
         function validateActivity(activity) {
             if (activity.trim() === "") {
-                alert("‘做了什么’字段不能为空！");
+                alert("事件不能为空");
                 return false;
             }
             return true;
@@ -482,57 +488,42 @@
         let clearConfirmationModal = document.getElementById("clearConfirmationModal");
         let confirmClearButton = document.getElementById("confirmClearButton");
         let cancelClearButton = document.getElementById("cancelClearButton");
+        let modalMessage = document.getElementById("modalMessage");
 
         // 显示模态框
-        document.getElementById("clearButton").addEventListener("click", function () {
+        function showConfirmationModal(message, callback) {
+            modalMessage.textContent = message;
             clearConfirmationModal.style.display = "flex";
-        });
 
-        // 确认清除记录
-        confirmClearButton.addEventListener("click", function () {
-            let selectedDate = document.getElementById("datePicker").value;
-
-            // 仅删除当前日期的记录
-            records = records.filter(record => record.date !== selectedDate);
-
-            saveData();
-            updateRecordsTable();
-            calculateTimeDistribution();
-            clearConfirmationModal.style.display = "none";
-        });
-
-        // 取消清除记录
-        cancelClearButton.addEventListener("click", function () {
-            clearConfirmationModal.style.display = "none";
-        });
-
-        // 点击模态框外部关闭模态框
-        window.addEventListener("click", function (event) {
-            if (event.target === clearConfirmationModal) {
+            confirmClearButton.onclick = function () {
+                callback();
                 clearConfirmationModal.style.display = "none";
-            }
+            };
+
+            cancelClearButton.onclick = function () {
+                clearConfirmationModal.style.display = "none";
+            };
+        }
+
+        // 清除记录
+        document.getElementById("clearButton").addEventListener("click", function () {
+            showConfirmationModal("确定要清除当前日期的所有记录吗？", function () {
+                let selectedDate = document.getElementById("datePicker").value;
+                records = records.filter(record => record.date !== selectedDate);
+                saveData();
+                updateRecordsTable();
+                calculateTimeDistribution();
+            });
         });
 
-        document.getElementById("startHour").addEventListener("input", function () {
-            let startHour = document.getElementById("startHour").value;
-            let startMinute = document.getElementById("startMinute").value;
+        // 删除单个记录
+        function deleteRecordWithConfirmation(index) {
+            showConfirmationModal("确定要删除这条记录吗？", function () {
+                deleteRecord(index);
+            });
+        }
 
-            if (startHour && startMinute) {
-                document.getElementById("endHour").value = startHour;
-                document.getElementById("endMinute").value = startMinute;
-            }
-        });
-
-        document.getElementById("startMinute").addEventListener("input", function () {
-            let startHour = document.getElementById("startHour").value;
-            let startMinute = document.getElementById("startMinute").value;
-
-            if (startHour && startMinute) {
-                document.getElementById("endHour").value = startHour;
-                document.getElementById("endMinute").value = startMinute;
-            }
-        });
-
+        // 更新事件记录表格
         function updateRecordsTable() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
@@ -548,12 +539,13 @@
                     <td class="tag">${record.tag}</td>
                     <td>
                         <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
-                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
+                        <span class="action-btn" onclick="deleteRecordWithConfirmation(${index})">删除</span>
                     </td>
                 `;
             });
         }
 
+        // 计算时间分配
         function calculateTimeDistribution() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
@@ -564,7 +556,7 @@
 
             filteredRecords.forEach(record => {
                 let activity = record.activity || "未分类";
-                let tag = record.tag || "未分类";
+                let tag = record.tag || "";
                 let timeParts = record.time.split(" - ");
                 let start = timeParts[0].split(":");
                 let end = timeParts[1].split(":");
@@ -583,10 +575,12 @@
                     activitySummary[activity] = duration;
                 }
 
-                if (tagSummary[tag]) {
-                    tagSummary[tag] += duration;
-                } else {
-                    tagSummary[tag] = duration;
+                if (tag) {
+                    if (tagSummary[tag]) {
+                        tagSummary[tag] += duration;
+                    } else {
+                        tagSummary[tag] = duration;
+                    }
                 }
             });
 
@@ -624,6 +618,27 @@
                 `;
             });
         }
+
+        // 自动填充结束时间
+        document.getElementById("startHour").addEventListener("input", function () {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
+
+        document.getElementById("startMinute").addEventListener("input", function () {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
 
         document.getElementById("datePicker").addEventListener("change", function () {
             updateRecordsTable();
