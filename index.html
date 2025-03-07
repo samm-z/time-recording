@@ -274,21 +274,20 @@
     <!-- 清除记录确认模态框 -->
     <div id="clearConfirmationModal" class="modal">
         <div class="modal-content">
-            <p id="modalMessage">确定要清除当前日期的所有记录吗？</p>
+            <p>确定要清除当前日期的所有记录吗？</p>
             <button id="confirmClearButton">确定</button>
             <button id="cancelClearButton">取消</button>
         </div>
     </div>
 
     <div class="footer">
-        ©️Sam Zhang v1.4
+        ©️Sam Zhang v1.3
     </div>
     
     <script>
         let tags = new Set();
         let tagOptions = document.getElementById("tagOptions");
         let records = [];
-        let currentIndexToDelete = null; // 用于存储当前要删除的记录的索引
 
         function initializeDatePicker() {
             let today = new Date();
@@ -483,42 +482,57 @@
         let clearConfirmationModal = document.getElementById("clearConfirmationModal");
         let confirmClearButton = document.getElementById("confirmClearButton");
         let cancelClearButton = document.getElementById("cancelClearButton");
-        let modalMessage = document.getElementById("modalMessage");
 
         // 显示模态框
-        function showConfirmationModal(message, callback) {
-            modalMessage.textContent = message;
-            clearConfirmationModal.style.display = "flex";
-
-            confirmClearButton.onclick = function () {
-                callback();
-                clearConfirmationModal.style.display = "none";
-            };
-
-            cancelClearButton.onclick = function () {
-                clearConfirmationModal.style.display = "none";
-            };
-        }
-
-        // 清除记录
         document.getElementById("clearButton").addEventListener("click", function () {
-            showConfirmationModal("确定要清除当前日期的所有事件吗？", function () {
-                let selectedDate = document.getElementById("datePicker").value;
-                records = records.filter(record => record.date !== selectedDate);
-                saveData();
-                updateRecordsTable();
-                calculateTimeDistribution();
-            });
+            clearConfirmationModal.style.display = "flex";
         });
 
-        // 删除单个记录
-        function deleteRecordWithConfirmation(index) {
-            showConfirmationModal("确定要删除这个事件吗？", function () {
-                deleteRecord(index);
-            });
-        }
+        // 确认清除记录
+        confirmClearButton.addEventListener("click", function () {
+            let selectedDate = document.getElementById("datePicker").value;
 
-        // 更新事件记录表格
+            // 仅删除当前日期的记录
+            records = records.filter(record => record.date !== selectedDate);
+
+            saveData();
+            updateRecordsTable();
+            calculateTimeDistribution();
+            clearConfirmationModal.style.display = "none";
+        });
+
+        // 取消清除记录
+        cancelClearButton.addEventListener("click", function () {
+            clearConfirmationModal.style.display = "none";
+        });
+
+        // 点击模态框外部关闭模态框
+        window.addEventListener("click", function (event) {
+            if (event.target === clearConfirmationModal) {
+                clearConfirmationModal.style.display = "none";
+            }
+        });
+
+        document.getElementById("startHour").addEventListener("input", function () {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
+
+        document.getElementById("startMinute").addEventListener("input", function () {
+            let startHour = document.getElementById("startHour").value;
+            let startMinute = document.getElementById("startMinute").value;
+
+            if (startHour && startMinute) {
+                document.getElementById("endHour").value = startHour;
+                document.getElementById("endMinute").value = startMinute;
+            }
+        });
+
         function updateRecordsTable() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
@@ -534,13 +548,12 @@
                     <td class="tag">${record.tag}</td>
                     <td>
                         <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
-                        <span class="action-btn" onclick="deleteRecordWithConfirmation(${index})">删除</span>
+                        <span class="action-btn" onclick="deleteRecord(${index})">删除</span>
                     </td>
                 `;
             });
         }
 
-        // 计算时间分配
         function calculateTimeDistribution() {
             let selectedDate = document.getElementById("datePicker").value;
             let filteredRecords = records.filter(record => record.date === selectedDate);
