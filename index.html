@@ -274,7 +274,7 @@
     <!-- 清除记录确认模态框 -->
     <div id="clearConfirmationModal" class="modal">
         <div class="modal-content">
-            <p>确定要清除所有记录吗？</p>
+            <p>确定要清除当前日期的所有记录吗？</p>
             <button id="confirmClearButton">确定</button>
             <button id="cancelClearButton">取消</button>
         </div>
@@ -490,8 +490,12 @@
 
         // 确认清除记录
         confirmClearButton.addEventListener("click", function () {
-            localStorage.removeItem("records");
-            records = [];
+            let selectedDate = document.getElementById("datePicker").value;
+
+            // 仅删除当前日期的记录
+            records = records.filter(record => record.date !== selectedDate);
+
+            saveData();
             updateRecordsTable();
             calculateTimeDistribution();
             clearConfirmationModal.style.display = "none";
