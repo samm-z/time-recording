@@ -6,372 +6,1096 @@
     <title>时间记录表</title>
     <link rel="icon" href="calendar.png" type="image/png">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-light: #dbeafe;
+            --secondary: #f3f4f6;
+            --secondary-hover: #e5e7eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --background: #ffffff;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 0.5rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        .dark {
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --primary-light: #1e3a8a;
+            --secondary: #374151;
+            --secondary-hover: #4b5563;
+            --danger: #ef4444;
+            --danger-hover: #f87171;
+            --success: #10b981;
+            --success-hover: #34d399;
+            --text: #f9fafb;
+            --text-light: #9ca3af;
+            --background: #111827;
+            --card: #1f2937;
+            --border: #374151;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
             box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            transition: var(--transition);
+        }
+
+        .dark body {
+            background: linear-gradient(to bottom, #111827, #0f172a);
         }
 
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            min-width: 800px;
-            position: relative;
-            width: 10%;
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .date-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            padding: 0.5rem;
+            width: 150px;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* 两列布局 */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .records-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .time-input {
+            width: 70px;
+        }
+
+        .icon {
+            color: var(--text-light);
+            width: 16px;
+            height: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            align-items: center;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: inline-flex;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.5rem;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-icon {
+            padding: 0.25rem;
+            border-radius: 9999px;
+        }
+
+        .section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .record-count {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
 
         th, td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            text-align: left;
         }
 
         th {
-            background-color: #ddd;
+            background-color: var(--secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
-        .tag {
-            color: blue;
+        tr:last-child td {
+            border-bottom: none;
         }
 
-        .form-group {
-            margin-bottom: 10px;
+        .badge {
+            background-color: var(--primary-light);
+            border-radius: 9999px;
+            color: var(--primary);
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            position: relative;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
         }
 
-        input {
-            width: 60px;
+        .badge-tooltip {
+            background-color: var(--text);
+            border-radius: 0.25rem;
+            bottom: 125%;
+            color: white;
+            font-size: 0.75rem;
+            left: 50%;
+            opacity: 0;
+            padding: 0.25rem 0.5rem;
+            pointer-events: none;
+            position: absolute;
+            transform: translateX(-50%);
+            transition: opacity 0.2s ease-in-out;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .badge:hover .badge-tooltip {
+            opacity: 1;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-edit {
+            color: var(--success);
+        }
+
+        .btn-edit:hover {
+            color: var(--success-hover);
+        }
+
+        .btn-delete {
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            color: var(--danger-hover);
+        }
+
+        .empty-state {
+            background-color: var(--secondary);
+            border-radius: var(--radius);
+            color: var(--text-light);
+            padding: 2rem;
             text-align: center;
-        }     
-        
-        .dataPicker {
-            width: 110px; /* 调整宽度，可根据需要修改 */
         }
 
-        #activity {
-            width: 150px;
-        }
-
-        button {
-            padding: 5px 15px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .tables-container {
-            margin-top: 15px;
-        }
-
-        .small-table {
+        .toggle-button {
             width: 100%;
         }
 
-        .action-btn {
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 12px;
-            color: red;
+        .summary-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
         }
 
-        .modify-btn {
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 12px;
-            color: green;
+        .summary-container.visible {
+            max-height: 2000px;
+            margin-top: 1rem;
         }
 
-        .tag-management {
-            margin-top: 20px;
+        .progress-container {
+            margin-top: 0.25rem;
+        }
+
+        .progress-bar {
+            background-color: var(--secondary);
+            border-radius: 9999px;
+            height: 0.5rem;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-value {
+            background-color: var(--primary);
+            height: 100%;
+            transition: width 0.3s ease;
         }
 
         .tag-list {
-            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .tag-item {
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 5px;
-            display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            background-color: var(--secondary);
+            border-radius: 9999px;
+            display: flex;
+            font-size: 0.875rem;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
         }
 
-        .delete-tag-btn {
+        .tag-delete {
+            align-items: center;
+            background-color: transparent;
+            border: none;
+            border-radius: 9999px;
+            color: var(--danger);
             cursor: pointer;
-            margin-left: 5px;
-            color: red;
+            display: flex;
+            height: 16px;
+            justify-content: center;
+            padding: 0;
+            width: 16px;
         }
 
-        .summary-table {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .summary-table th, .summary-table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .summary-table th {
-            background-color: #f5f5f5;
-        }
-
-        .date-picker {
-            margin-bottom: 20px;
+        .tag-delete:hover {
+            color: var(--danger-hover);
         }
 
         .footer {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            font-size: 12px;
-            color: #999;
-            opacity: 0.8;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
+            text-align: center;
         }
 
-        /* 模态框样式 */
         .modal {
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
             display: none;
+            height: 100vh;
+            justify-content: center;
+            left: 0;
             position: fixed;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            width: 100vw;
+            z-index: 50;
+        }
+
+        .modal.visible {
+            display: flex;
         }
 
         .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            padding: 1.5rem;
+            width: 90%;
         }
 
-        .modal-content p {
-            margin-bottom: 20px;
-            font-size: 16px;
+        .modal-header {
+            margin-bottom: 1rem;
         }
 
-        .modal-content button {
-            padding: 8px 16px;
-            margin: 0 10px;
-            font-size: 14px;
-            cursor: pointer;
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-description {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-item {
+            margin-bottom: 1rem;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .theme-toggle {
+            background: none;
             border: none;
-            border-radius: 5px;
-            background-color: #007bff;
             color: white;
+            cursor: pointer;
         }
 
-        .modal-content button#cancelClearButton {
-            background-color: #6c757d;
+        /* 多标签选择器样式 */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
         }
 
-        .modal-content button:hover {
-            opacity: 0.9;
+        .selected-tag {
+            background-color: var(--primary-light);
+            border-radius: 9999px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
         }
 
+        .tag-remove {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.25rem;
+        }
+
+        .tag-badges {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-right {
+                margin-top: 1rem;
+                width: 100%;
+            }
+            
+            .date-picker {
+                width: 100%;
+            }
+            
+            .date-input {
+                width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>时间记录表</h1>
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">
+                    <svg class="icon" style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    时间记录表
+                </h1>
+                <div class="header-right">
+                    <div class="date-picker">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <input type="date" id="datePicker" class="date-input">
+                    </div>
+                    <button id="themeToggle" class="theme-toggle">
+                        <svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="two-column-layout">
+                    <!-- 左侧：表单 -->
+                    <div class="form-column">
+                        <form id="timeForm">
+                            <div class="form-group">
+                                <label for="startHour" class="form-label">开始时间</label>
+                                <div class="form-input-group">
+                                    <input type="number" id="startHour" class="form-input time-input" min="0" max="23" placeholder="小时">
+                                    <span>:</span>
+                                    <input type="number" id="startMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="endHour" class="form-label">结束时间</label>
+                                <div class="form-input-group">
+                                    <input type="number" id="endHour" class="form-input time-input" min="0" max="23" placeholder="小时">
+                                    <span>:</span>
+                                    <input type="number" id="endMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity" class="form-label">事件</label>
+                                <div class="form-input-group">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                    </svg>
+                                    <input type="text" id="activity" class="form-input" placeholder="输入事件名称">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tag" class="form-label">标签</label>
+                                <div class="form-input-group">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                    </svg>
+                                    <input type="text" id="tag" class="form-input" placeholder="输入标签并按回车添加" list="tagOptions">
+                                    <datalist id="tagOptions"></datalist>
+                                </div>
+                                <div id="selectedTags" class="tags-container"></div>
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-primary">
+                                    提交
+                                </button>
+                                <button type="button" id="clearButton" class="btn btn-danger">
+                                    清除记录
+                                </button>
+                            </div>
+                        </form>
 
-        <!-- 日期选择器 -->
-        <div class="date-picker">
-            <label>选择日期：</label>
-            <input type="date" id="datePicker" class="dataPicker">
+                        <div class="section">
+                            <h3 class="section-title">标签管理</h3>
+                            <div id="tagList" class="tag-list"></div>
+                            <div id="emptyTags" class="empty-state">
+                                没有标签
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <button id="toggleSummaryButton" class="btn btn-outline toggle-button">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                </svg>
+                                显示时间分配统计表
+                                <svg class="icon" id="summaryChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            
+                            <div id="summaryContainer" class="summary-container">
+                                <div class="section">
+                                    <h3 class="section-title">按活动统计</h3>
+                                    <div id="activitySummary" class="summary-content"></div>
+                                    <div id="emptyActivitySummary" class="empty-state">
+                                        没有活动数据
+                                    </div>
+                                </div>
+                                
+                                <div class="section">
+                                    <h3 class="section-title">按标签统计</h3>
+                                    <div id="tagSummary" class="summary-content"></div>
+                                    <div id="emptyTagSummary" class="empty-state">
+                                        没有标签数据
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：记录表 -->
+                    <div class="records-column">
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">事件记录</h3>
+                                <div id="recordCount" class="record-count">0 条记录</div>
+                            </div>
+                            
+                            <div id="recordsContainer" class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>时间段</th>
+                                            <th>事件</th>
+                                            <th>标签</th>
+                                            <th style="text-align: right;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recordTable"></tbody>
+                                </table>
+                            </div>
+                            <div id="emptyRecords" class="empty-state">
+                                当前日期没有记录
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- 事件记录表单 -->
-        <form>
-            <div class="form-group">
-                <label>开始时间：</label>
-                <input type="number" id="startHour" min="0" max="23" placeholder="小时"> :
-                <input type="number" id="startMinute" min="0" max="59" placeholder="分钟">
-            </div>
-
-            <div class="form-group">
-                <label>结束时间：</label>
-                <input type="number" id="endHour" min="0" max="23" placeholder="小时"> :
-                <input type="number" id="endMinute" min="0" max="59" placeholder="分钟">
-            </div>
-
-            <div class="form-group">
-                <label>事件：</label>
-                <input type="text" id="activity">
-            </div>
-
-            <div class="form-group">
-                <label>标签：</label>
-                <input type="text" id="tag" class="tag" list="tagOptions">
-                <datalist id="tagOptions"></datalist>
-            </div>
-
-            <button type="submit">提交</button>
-            <button type="button" id="clearButton">清除记录</button>
-        </form>
-
-        <!-- 事件记录表格 -->
-        <table class="small-table">
-            <thead>
-                <tr>
-                    <th>时间段</th>
-                    <th>事件</th>
-                    <th>标签</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="recordTable"></tbody>
-        </table>
-
-        <!-- 时间分配统计表格 -->
-        <h3>时间分配统计</h3>
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th>活动</th>
-                    <th>时间（分钟）</th>
-                    <th>百分比</th>
-                </tr>
-            </thead>
-            <tbody id="activitySummaryTableBody"></tbody>
-            <thead>
-                <tr>
-                    <th>标签</th>
-                    <th>时间（分钟）</th>
-                    <th>百分比</th>
-                </tr>
-            </thead>
-            <tbody id="tagSummaryTableBody"></tbody>
-        </table>
-
-        <!-- 标签管理 -->
-        <div class="tag-management">
-            <h3>标签管理</h3>
-            <div class="tag-list" id="tagManagementTable"></div>
+        
+        <div class="footer">
+            ©️Sam Zhang v2.0
         </div>
     </div>
 
-    <!-- 清除记录确认模态框 -->
-    <div id="clearConfirmationModal" class="modal">
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <p id="modalMessage">确定要清除当前日期的所有记录吗？</p>
-            <button id="confirmClearButton">确定</button>
-            <button id="cancelClearButton">取消</button>
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <p id="deleteModalDescription" class="modal-description">确定要删除这条记录吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteButton" class="btn btn-outline">取消</button>
+                <button id="confirmDeleteButton" class="btn btn-danger">确定</button>
+            </div>
         </div>
     </div>
 
-    <div class="footer">
-        ©️Sam Zhang v1.4
+    <!-- 删除标签确认模态框 -->
+    <div id="deleteTagModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除标签</h3>
+                <p id="deleteTagModalDescription" class="modal-description">确定要删除标签吗？所有使用此标签的记录将被重置为"其他"。</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteTagButton" class="btn btn-outline">取消</button>
+                <button id="confirmDeleteTagButton" class="btn btn-danger">确定</button>
+            </div>
+        </div>
     </div>
-    
+
     <script>
-        let tags = new Set();
-        let tagOptions = document.getElementById("tagOptions");
+        // 全局变量
         let records = [];
-        let currentIndexToDelete = null; // 用于存储当前要删除的记录的索引
+        let tags = new Set();
+        let currentIndexToDelete = null;
+        let currentTagToDelete = null;
+        let deleteType = 'record'; // 'record' 或 'all'
+        let selectedTags = []; // 当前选中的标签
 
+        // DOM 元素
+        const datePicker = document.getElementById('datePicker');
+        const startHour = document.getElementById('startHour');
+        const startMinute = document.getElementById('startMinute');
+        const endHour = document.getElementById('endHour');
+        const endMinute = document.getElementById('endMinute');
+        const activity = document.getElementById('activity');
+        const tag = document.getElementById('tag');
+        const selectedTagsContainer = document.getElementById('selectedTags');
+        const tagOptions = document.getElementById('tagOptions');
+        const recordTable = document.getElementById('recordTable');
+        const recordCount = document.getElementById('recordCount');
+        const recordsContainer = document.getElementById('recordsContainer');
+        const emptyRecords = document.getElementById('emptyRecords');
+        const tagList = document.getElementById('tagList');
+        const emptyTags = document.getElementById('emptyTags');
+        const timeForm = document.getElementById('timeForm');
+        const clearButton = document.getElementById('clearButton');
+        const toggleSummaryButton = document.getElementById('toggleSummaryButton');
+        const summaryContainer = document.getElementById('summaryContainer');
+        const summaryChevron = document.getElementById('summaryChevron');
+        const activitySummary = document.getElementById('activitySummary');
+        const tagSummary = document.getElementById('tagSummary');
+        const emptyActivitySummary = document.getElementById('emptyActivitySummary');
+        const emptyTagSummary = document.getElementById('emptyTagSummary');
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteModalDescription = document.getElementById('deleteModalDescription');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+        const deleteTagModal = document.getElementById('deleteTagModal');
+        const deleteTagModalDescription = document.getElementById('deleteTagModalDescription');
+        const confirmDeleteTagButton = document.getElementById('confirmDeleteTagButton');
+        const cancelDeleteTagButton = document.getElementById('cancelDeleteTagButton');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // 初始化日期选择器
         function initializeDatePicker() {
-            let today = new Date();
-            let year = today.getFullYear();
-            let month = String(today.getMonth() + 1).padStart(2, '0');
-            let day = String(today.getDate()).padStart(2, '0');
-            let formattedDate = `${year}-${month}-${day}`;
-            document.getElementById("datePicker").value = formattedDate;
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            datePicker.value = formattedDate;
         }
 
+        // 保存数据到 localStorage
         function saveData() {
-            let tagList = [...tags];
-            localStorage.setItem("records", JSON.stringify(records));
-            localStorage.setItem("tags", JSON.stringify(tagList));
+            localStorage.setItem('records', JSON.stringify(records));
+            localStorage.setItem('tags', JSON.stringify([...tags]));
         }
 
+        // 从 localStorage 加载数据
         function loadData() {
-            records = JSON.parse(localStorage.getItem("records") || "[]");
-            let tagList = JSON.parse(localStorage.getItem("tags") || "[]");
+            const savedRecords = localStorage.getItem('records');
+            const savedTags = localStorage.getItem('tags');
+            
+            if (savedRecords) {
+                // 兼容旧版本数据（单标签）
+                const parsedRecords = JSON.parse(savedRecords);
+                records = parsedRecords.map(record => {
+                    // 如果记录中的标签是字符串，转换为数组
+                    if (typeof record.tag === 'string') {
+                        return {
+                            ...record,
+                            tags: record.tag ? [record.tag] : []
+                        };
+                    }
+                    // 如果已经是新格式，直接返回
+                    return record;
+                });
+            }
+            
+            if (savedTags) {
+                const tagArray = JSON.parse(savedTags);
+                tags = new Set(tagArray);
+                
+                // 更新标签选项
+                updateTagOptions();
+            }
+            
+            updateRecordsTable();
+            updateTagList();
+            calculateTimeDistribution();
+        }
 
-            tagList.forEach(tag => {
-                tags.add(tag);
-                let option = document.createElement("option");
-                option.value = tag;
+        // 更新标签选项
+        function updateTagOptions() {
+            tagOptions.innerHTML = '';
+            [...tags].forEach(tagName => {
+                const option = document.createElement('option');
+                option.value = tagName;
                 tagOptions.appendChild(option);
-                addTagToManagementTable(tag);
             });
+        }
 
+        // 格式化时间
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        // 验证时间输入
+        function validateTime(hour, minute) {
+            if (hour < 0 || hour > 23) {
+                alert('小时必须在 0 到 23 之间！');
+                return false;
+            }
+            if (minute < 0 || minute > 59) {
+                alert('分钟必须在 0 到 59 之间！');
+                return false;
+            }
+            return true;
+        }
+
+        // 验证事件输入
+        function validateActivity(activityText) {
+            if (activityText.trim() === '') {
+                alert('事件不能为空');
+                return false;
+            }
+            return true;
+        }
+
+        // 添加标签到选中列表
+        function addTag(tagName) {
+            if (!tagName.trim()) return;
+            
+            // 如果标签已经选中，不重复添加
+            if (selectedTags.includes(tagName)) return;
+            
+            selectedTags.push(tagName);
+            updateSelectedTagsUI();
+            
+            // 清空输入框
+            tag.value = '';
+        }
+
+        // 从选中列表中移除标签
+        function removeTag(tagName) {
+            selectedTags = selectedTags.filter(t => t !== tagName);
+            updateSelectedTagsUI();
+        }
+
+        // 更新选中标签的UI
+        function updateSelectedTagsUI() {
+            selectedTagsContainer.innerHTML = '';
+            
+            selectedTags.forEach(tagName => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'selected-tag';
+                tagElement.innerHTML = `
+                    ${tagName}
+                    <span class="tag-remove" data-tag="${tagName}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                `;
+                
+                selectedTagsContainer.appendChild(tagElement);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.tag-remove').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tagName = this.getAttribute('data-tag');
+                    removeTag(tagName);
+                });
+            });
+        }
+
+        // 更新记录表格
+        function updateRecordsTable() {
+            const selectedDate = datePicker.value;
+            const filteredRecords = records.filter(record => record.date === selectedDate);
+            
+            recordCount.textContent = `${filteredRecords.length} 条记录`;
+            
+            if (filteredRecords.length === 0) {
+                recordsContainer.style.display = 'none';
+                emptyRecords.style.display = 'block';
+                return;
+            }
+            
+            recordsContainer.style.display = 'block';
+            emptyRecords.style.display = 'none';
+            
+            recordTable.innerHTML = '';
+            
+            filteredRecords.forEach((record, index) => {
+                const row = document.createElement('tr');
+                
+                // 找到记录在原始数组中的索引
+                const originalIndex = records.findIndex(r => 
+                    r.date === record.date && 
+                    r.time === record.time && 
+                    r.activity === record.activity && 
+                    JSON.stringify(r.tags) === JSON.stringify(record.tags)
+                );
+                
+                // 创建标签HTML
+                const tagsHtml = record.tags && record.tags.length > 0 
+                    ? record.tags.map(tag => `
+                        <span class="badge">
+                            ${tag}
+                            <span class="badge-tooltip">${calculateTagPercentage(tag)}%</span>
+                        </span>
+                    `).join('') 
+                    : `
+                        <span class="badge">
+                            其他
+                            <span class="badge-tooltip">${calculateTagPercentage('其他')}%</span>
+                        </span>
+                    `;
+                
+                row.innerHTML = `
+                    <td>${record.time}</td>
+                    <td>${record.activity}</td>
+                    <td>
+                        <div class="tag-badges">
+                            ${tagsHtml}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-icon btn-edit" data-index="${originalIndex}">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button type="button" class="btn btn-icon btn-delete" data-index="${originalIndex}">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                recordTable.appendChild(row);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    modifyRecord(index);
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    showDeleteConfirmation('record', index);
+                });
+            });
+        }
+
+        // 更新标签列表
+        function updateTagList() {
+            if (tags.size === 0) {
+                tagList.style.display = 'none';
+                emptyTags.style.display = 'block';
+                return;
+            }
+            
+            tagList.style.display = 'flex';
+            emptyTags.style.display = 'none';
+            
+            tagList.innerHTML = '';
+            
+            [...tags].forEach(tagName => {
+                const tagItem = document.createElement('div');
+                tagItem.className = 'tag-item';
+                tagItem.innerHTML = `
+                    ${tagName}
+                    <button type="button" class="tag-delete" data-tag="${tagName}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                
+                tagList.appendChild(tagItem);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.tag-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tagName = this.getAttribute('data-tag');
+                    showDeleteTagConfirmation(tagName);
+                });
+            });
+        }
+
+        // 计算标签百分比
+        function calculateTagPercentage(tagName) {
+            const selectedDate = datePicker.value;
+            const filteredRecords = records.filter(record => record.date === selectedDate);
+            
+            let tagTime = 0;
+            let totalTime = 0;
+            
+            filteredRecords.forEach(record => {
+                const [startTime, endTime] = record.time.split(' - ');
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+                
+                const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
+                totalTime += duration;
+                
+                // 检查记录是否包含该标签
+                if (record.tags && record.tags.includes(tagName)) {
+                    tagTime += duration;
+                } else if (!record.tags || record.tags.length === 0 && tagName === '其他') {
+                    tagTime += duration;
+                }
+            });
+            
+            return totalTime ? ((tagTime / totalTime) * 100).toFixed(2) : '0.00';
+        }
+
+        // 修改记录
+        function modifyRecord(index) {
+            const record = records[index];
+            const [startTime, endTime] = record.time.split(' - ');
+            const [startHourVal, startMinuteVal] = startTime.split(':');
+            const [endHourVal, endMinuteVal] = endTime.split(':');
+            
+            startHour.value = startHourVal;
+            startMinute.value = startMinuteVal;
+            endHour.value = endHourVal;
+            endMinute.value = endMinuteVal;
+            activity.value = record.activity;
+            
+            // 设置选中的标签
+            selectedTags = record.tags ? [...record.tags] : [];
+            updateSelectedTagsUI();
+            
+            // 删除记录
+            records.splice(index, 1);
+            saveData();
             updateRecordsTable();
             calculateTimeDistribution();
         }
 
-        function addTagToManagementTable(tag) {
-            let tagManagementTable = document.getElementById("tagManagementTable");
-            let exists = [...tagManagementTable.children].some(tagItem => tagItem.innerText === tag);
-            if (!exists) {
-                let tagItem = document.createElement("div");
-                tagItem.classList.add("tag-item");
-                tagItem.innerHTML = `
-                    ${tag}
-                    <span class="delete-tag-btn" onclick="deleteTag('${tag}')">删除</span>
-                `;
-                tagManagementTable.appendChild(tagItem);
-            }
-        }
-
-        function validateTime(hour, minute) {
-            if (hour < 0 || hour > 23) {
-                alert("小时必须在 0 到 23 之间！");
-                return false;
-            }
-            if (minute < 0 || minute > 59) {
-                alert("分钟必须在 0 到 59 之间！");
-                return false;
-            }
-            return true;
-        }
-
-        function validateActivity(activity) {
-            if (activity.trim() === "") {
-                alert("事件不能为空");
-                return false;
-            }
-            return true;
-        }
-
-        function modifyRecord(index) {
-            let record = records[index];
-            document.getElementById("startHour").value = parseInt(record.time.split(":")[0]);
-            document.getElementById("startMinute").value = parseInt(record.time.split(":")[1].split(" - ")[0]);
-            document.getElementById("endHour").value = parseInt(record.time.split(" - ")[1].split(":")[0]);
-            document.getElementById("endMinute").value = parseInt(record.time.split(" - ")[1].split(":")[1]);
-            document.getElementById("activity").value = record.activity;
-            document.getElementById("tag").value = record.tag;
-
-            deleteRecord(index);
-        }
-
+        // 删除记录
         function deleteRecord(index) {
             records.splice(index, 1);
             saveData();
@@ -379,274 +1103,385 @@
             calculateTimeDistribution();
         }
 
-        function deleteTag(tag) {
-            tags.delete(tag);
-
+        // 删除标签
+        function deleteTag(tagName) {
+            tags.delete(tagName);
+            
+            // 更新记录中的标签
             records.forEach(record => {
-                if (record.tag === tag) {
-                    record.tag = '';
+                if (record.tags && record.tags.includes(tagName)) {
+                    record.tags = record.tags.filter(t => t !== tagName);
                 }
             });
-
+            
+            saveData();
+            updateTagList();
+            updateTagOptions();
             updateRecordsTable();
-
-            let tagManagementTable = document.getElementById("tagManagementTable");
-            let tagItems = tagManagementTable.querySelectorAll(".tag-item");
-            tagItems.forEach(tagItem => {
-                if (tagItem.innerText.includes(tag)) {
-                    tagItem.remove();
-                }
-            });
-
-            saveData();
-
-            let tagOptionsList = document.getElementById("tagOptions").children;
-            for (let option of tagOptionsList) {
-                if (option.value === tag) {
-                    option.remove();
-                }
-            }
-
             calculateTimeDistribution();
-        }
-
-        function formatTime(time) {
-            return time < 10 ? `0${time}` : time;
-        }
-
-        function sortRecordsByTime() {
-            records.sort((a, b) => {
-                let aStart = a.time.split(" - ")[0];
-                let bStart = b.time.split(" - ")[0];
-
-                let aStartParts = aStart.split(":");
-                let bStartParts = bStart.split(":");
-
-                return (parseInt(aStartParts[0]) - parseInt(bStartParts[0])) || (parseInt(aStartParts[1]) - parseInt(bStartParts[1]));
-            });
-        }
-
-        document.querySelector("form").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            let startHour = parseInt(document.getElementById("startHour").value);
-            let startMinute = parseInt(document.getElementById("startMinute").value);
-            let endHour = parseInt(document.getElementById("endHour").value);
-            let endMinute = parseInt(document.getElementById("endMinute").value);
-            let activity = document.getElementById("activity").value;
-            let tag = document.getElementById("tag").value;
-            let selectedDate = document.getElementById("datePicker").value;
-
-            if (!validateTime(startHour, startMinute) || !validateTime(endHour, endMinute)) {
-                return;
-            }
-
-            if (!validateActivity(activity)) {
-                return;
-            }
-
-            if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
-                alert("开始时间不能晚于结束时间！");
-                return;
-            }
-
-            let recordTime = `${formatTime(startHour)}:${formatTime(startMinute)} - ${formatTime(endHour)}:${formatTime(endMinute)}`;
-            let record = {
-                date: selectedDate,
-                time: recordTime,
-                activity: activity,
-                tag: tag
-            };
-
-            records.push(record);
-            sortRecordsByTime();
-            saveData();
-
-            updateRecordsTable();
-
-            if (tag && !tags.has(tag)) {
-                tags.add(tag);
-                let option = document.createElement("option");
-                option.value = tag;
-                tagOptions.appendChild(option);
-                addTagToManagementTable(tag);
-            }
-
-            saveData();
-
-            document.getElementById("startHour").value = "";
-            document.getElementById("startMinute").value = "";
-            document.getElementById("endHour").value = "";
-            document.getElementById("endMinute").value = "";
-            document.getElementById("activity").value = "";
-            document.getElementById("tag").value = "";
-
-            calculateTimeDistribution();
-        });
-
-        // 获取模态框和按钮
-        let clearConfirmationModal = document.getElementById("clearConfirmationModal");
-        let confirmClearButton = document.getElementById("confirmClearButton");
-        let cancelClearButton = document.getElementById("cancelClearButton");
-        let modalMessage = document.getElementById("modalMessage");
-
-        // 显示模态框
-        function showConfirmationModal(message, callback) {
-            modalMessage.textContent = message;
-            clearConfirmationModal.style.display = "flex";
-
-            confirmClearButton.onclick = function () {
-                callback();
-                clearConfirmationModal.style.display = "none";
-            };
-
-            cancelClearButton.onclick = function () {
-                clearConfirmationModal.style.display = "none";
-            };
         }
 
         // 清除记录
-        document.getElementById("clearButton").addEventListener("click", function () {
-            showConfirmationModal("确定要清除当前日期的所有记录吗？", function () {
-                let selectedDate = document.getElementById("datePicker").value;
-                records = records.filter(record => record.date !== selectedDate);
-                saveData();
-                updateRecordsTable();
-                calculateTimeDistribution();
-            });
-        });
-
-        // 删除单个记录
-        function deleteRecordWithConfirmation(index) {
-            showConfirmationModal("确定要删除这条记录吗？", function () {
-                deleteRecord(index);
-            });
-        }
-
-        // 更新事件记录表格
-        function updateRecordsTable() {
-            let selectedDate = document.getElementById("datePicker").value;
-            let filteredRecords = records.filter(record => record.date === selectedDate);
-
-            let table = document.getElementById("recordTable");
-            table.innerHTML = "";
-            filteredRecords.forEach((record, index) => {
-                let row = table.insertRow();
-                row.setAttribute('data-index', index);
-                row.innerHTML = `
-                    <td>${record.time}</td>
-                    <td>${record.activity}</td>
-                    <td class="tag">${record.tag}</td>
-                    <td>
-                        <span class="modify-btn" onclick="modifyRecord(${index})">修改</span>
-                        <span class="action-btn" onclick="deleteRecordWithConfirmation(${index})">删除</span>
-                    </td>
-                `;
-            });
+        function clearRecords() {
+            const selectedDate = datePicker.value;
+            records = records.filter(record => record.date !== selectedDate);
+            saveData();
+            updateRecordsTable();
+            calculateTimeDistribution();
         }
 
         // 计算时间分配
         function calculateTimeDistribution() {
-            let selectedDate = document.getElementById("datePicker").value;
-            let filteredRecords = records.filter(record => record.date === selectedDate);
-
-            let activitySummary = {};
-            let tagSummary = {};
+            const selectedDate = datePicker.value;
+            const filteredRecords = records.filter(record => record.date === selectedDate);
+            
+            const activitySummaryData = {};
+            const tagSummaryData = {};
             let totalTime = 0;
-
+            
             filteredRecords.forEach(record => {
-                let activity = record.activity || "未分类";
-                let tag = record.tag || "";
-                let timeParts = record.time.split(" - ");
-                let start = timeParts[0].split(":");
-                let end = timeParts[1].split(":");
-
-                let startHour = parseInt(start[0]);
-                let startMinute = parseInt(start[1]);
-                let endHour = parseInt(end[0]);
-                let endMinute = parseInt(end[1]);
-
-                let duration = (endHour - startHour) * 60 + (endMinute - startMinute);
+                const activity = record.activity || '未分类';
+                const [startTime, endTime] = record.time.split(' - ');
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+                
+                const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
                 totalTime += duration;
-
-                if (activitySummary[activity]) {
-                    activitySummary[activity] += duration;
+                
+                // 活动统计
+                activitySummaryData[activity] = (activitySummaryData[activity] || 0) + duration;
+                
+                // 标签统计 - 每个标签都获得完整的时间
+                if (record.tags && record.tags.length > 0) {
+                    record.tags.forEach(tag => {
+                        tagSummaryData[tag] = (tagSummaryData[tag] || 0) + duration;
+                    });
                 } else {
-                    activitySummary[activity] = duration;
-                }
-
-                if (tag) {
-                    if (tagSummary[tag]) {
-                        tagSummary[tag] += duration;
-                    } else {
-                        tagSummary[tag] = duration;
-                    }
+                    // 如果没有标签，归为"其他"
+                    tagSummaryData['其他'] = (tagSummaryData['其他'] || 0) + duration;
                 }
             });
-
-            // 对活动时间分配进行排序
-            let sortedActivities = Object.entries(activitySummary).sort((a, b) => b[1] - a[1]);
-
-            // 更新活动时间分配表格
-            let activitySummaryTableBody = document.getElementById("activitySummaryTableBody");
-            activitySummaryTableBody.innerHTML = "";
-
-            sortedActivities.forEach(([activity, time]) => {
-                let percentage = ((time / totalTime) * 100).toFixed(2);
-                let row = activitySummaryTableBody.insertRow();
-                row.innerHTML = `
-                    <td>${activity}</td>
-                    <td>${time} 分钟</td>
-                    <td>${percentage}%</td>
-                `;
-            });
-
-            // 对标签时间分配进行排序
-            let sortedTags = Object.entries(tagSummary).sort((a, b) => b[1] - a[1]);
-
-            // 更新标签时间分配表格
-            let tagSummaryTableBody = document.getElementById("tagSummaryTableBody");
-            tagSummaryTableBody.innerHTML = "";
-
-            sortedTags.forEach(([tag, time]) => {
-                let percentage = ((time / totalTime) * 100).toFixed(2);
-                let row = tagSummaryTableBody.insertRow();
-                row.innerHTML = `
-                    <td>${tag}</td>
-                    <td>${time} 分钟</td>
-                    <td>${percentage}%</td>
-                `;
-            });
+            
+            // 活动时间分配
+            const sortedActivities = Object.entries(activitySummaryData)
+                .sort(([, timeA], [, timeB]) => timeB - timeA);
+            
+            if (sortedActivities.length === 0) {
+                activitySummary.style.display = 'none';
+                emptyActivitySummary.style.display = 'block';
+            } else {
+                activitySummary.style.display = 'block';
+                emptyActivitySummary.style.display = 'none';
+                
+                activitySummary.innerHTML = '';
+                
+                sortedActivities.forEach(([activity, time]) => {
+                    const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
+                    
+                    const summaryItem = document.createElement('div');
+                    summaryItem.className = 'summary-item';
+                    summaryItem.innerHTML = `
+                        <div class="summary-header">
+                            <span>${activity}</span>
+                            <span>${time} 分钟 (${percentage}%)</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    activitySummary.appendChild(summaryItem);
+                });
+            }
+            
+            // 标签时间分配
+            const sortedTags = Object.entries(tagSummaryData)
+                .sort(([, timeA], [, timeB]) => timeB - timeA);
+            
+            if (sortedTags.length === 0) {
+                tagSummary.style.display = 'none';
+                emptyTagSummary.style.display = 'block';
+            } else {
+                tagSummary.style.display = 'block';
+                emptyTagSummary.style.display = 'none';
+                
+                tagSummary.innerHTML = '';
+                
+                sortedTags.forEach(([tag, time]) => {
+                    const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
+                    
+                    const summaryItem = document.createElement('div');
+                    summaryItem.className = 'summary-item';
+                    summaryItem.innerHTML = `
+                        <div class="summary-header">
+                            <span>${tag}</span>
+                            <span>${time} 分钟 (${percentage}%)</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    tagSummary.appendChild(summaryItem);
+                });
+            }
         }
 
+        // 显示删除确认模态框
+        function showDeleteConfirmation(type, index) {
+            deleteType = type;
+            
+            if (type === 'record') {
+                currentIndexToDelete = index;
+                deleteModalDescription.textContent = '确定要删除这条记录吗？';
+            } else {
+                deleteModalDescription.textContent = '确定要清除当前日期的所有记录吗？';
+            }
+            
+            deleteModal.classList.add('visible');
+        }
+
+        // 显示删除标签确认模态框
+        function showDeleteTagConfirmation(tagName) {
+            currentTagToDelete = tagName;
+            deleteTagModalDescription.textContent = `确定要删除标签 "${tagName}" 吗？所有使用此标签的记录将被更新。`;
+            deleteTagModal.classList.add('visible');
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            
+            // 保存主题设置
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            
+            // 更新图标
+            themeToggle.innerHTML = isDark 
+                ? '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+                : '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+        }
+
+        // 检测系统主题偏好
+        function detectSystemTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+            }
+        }
+
+        // 监听系统主题变化
+        function listenForSystemThemeChanges() {
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    if (e.matches) {
+                        document.documentElement.classList.add('dark');
+                        themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+                    }
+                    // 保存当前主题设置
+                    localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+                });
+            }
+        }
+
+        // 加载保存的主题或使用系统主题
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('darkMode');
+            
+            // 如果用户之前设置过主题，使用保存的设置
+            if (savedTheme !== null) {
+                if (savedTheme === 'true') {
+                    document.documentElement.classList.add('dark');
+                    themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                }
+            } else {
+                // 否则使用系统主题
+                detectSystemTheme();
+            }
+        }
+
+        // 事件监听器
+        timeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const startHourVal = parseInt(startHour.value);
+            const startMinuteVal = parseInt(startMinute.value);
+            const endHourVal = parseInt(endHour.value);
+            const endMinuteVal = parseInt(endMinute.value);
+            const activityVal = activity.value;
+            const selectedDate = datePicker.value;
+            
+            if (!validateTime(startHourVal, startMinuteVal) || !validateTime(endHourVal, endMinuteVal)) {
+                return;
+            }
+            
+            if (!validateActivity(activityVal)) {
+                return;
+            }
+            
+            if (startHourVal > endHourVal || (startHourVal === endHourVal && startMinuteVal > endMinuteVal)) {
+                alert('开始时间不能晚于结束时间！');
+                return;
+            }
+            
+            const recordTime = `${formatTime(startHourVal)}:${formatTime(startMinuteVal)} - ${formatTime(endHourVal)}:${formatTime(endMinuteVal)}`;
+            
+            const newRecord = {
+                date: selectedDate,
+                time: recordTime,
+                activity: activityVal,
+                tags: [...selectedTags] // 使用选中的标签数组
+            };
+            
+            records.push(newRecord);
+            
+            // 按时间排序
+            records.sort((a, b) => {
+                if (a.date !== b.date) {
+                    return a.date.localeCompare(b.date);
+                }
+                
+                const aStart = a.time.split(' - ')[0];
+                const bStart = b.time.split(' - ')[0];
+                
+                const [aHour, aMinute] = aStart.split(':').map(Number);
+                const [bHour, bMinute] = bStart.split(':').map(Number);
+                
+                return (aHour - bHour) || (aMinute - bMinute);
+            });
+            
+            // 添加新标签到标签集合
+            selectedTags.forEach(tagName => {
+                if (!tags.has(tagName)) {
+                    tags.add(tagName);
+                }
+            });
+            
+            // 更新标签选项
+            updateTagOptions();
+            
+            saveData();
+            updateRecordsTable();
+            updateTagList();
+            calculateTimeDistribution();
+            
+            // 重置表单
+            timeForm.reset();
+            selectedTags = [];
+            updateSelectedTagsUI();
+        });
+
+        // 标签输入框事件
+        tag.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tagValue = tag.value.trim();
+                if (tagValue) {
+                    addTag(tagValue);
+                }
+            }
+        });
+
         // 自动填充结束时间
-        document.getElementById("startHour").addEventListener("input", function () {
-            let startHour = document.getElementById("startHour").value;
-            let startMinute = document.getElementById("startMinute").value;
-
-            if (startHour && startMinute) {
-                document.getElementById("endHour").value = startHour;
-                document.getElementById("endMinute").value = startMinute;
+        startHour.addEventListener('input', function() {
+            if (startHour.value && startMinute.value) {
+                endHour.value = startHour.value;
             }
         });
 
-        document.getElementById("startMinute").addEventListener("input", function () {
-            let startHour = document.getElementById("startHour").value;
-            let startMinute = document.getElementById("startMinute").value;
-
-            if (startHour && startMinute) {
-                document.getElementById("endHour").value = startHour;
-                document.getElementById("endMinute").value = startMinute;
+        startMinute.addEventListener('input', function() {
+            if (startHour.value && startMinute.value) {
+                endMinute.value = startMinute.value;
             }
         });
 
-        document.getElementById("datePicker").addEventListener("change", function () {
+        // 日期选择器变更
+        datePicker.addEventListener('change', function() {
             updateRecordsTable();
             calculateTimeDistribution();
         });
 
+        // 清除按钮
+        clearButton.addEventListener('click', function() {
+            showDeleteConfirmation('all');
+        });
+
+        // 确认删除
+        confirmDeleteButton.addEventListener('click', function() {
+            if (deleteType === 'record') {
+                deleteRecord(currentIndexToDelete);
+            } else {
+                clearRecords();
+            }
+            
+            deleteModal.classList.remove('visible');
+        });
+
+        // 取消删除
+        cancelDeleteButton.addEventListener('click', function() {
+            deleteModal.classList.remove('visible');
+        });
+
+        // 确认删除标签
+        confirmDeleteTagButton.addEventListener('click', function() {
+            deleteTag(currentTagToDelete);
+            deleteTagModal.classList.remove('visible');
+        });
+
+        // 取消删除标签
+        cancelDeleteTagButton.addEventListener('click', function() {
+            deleteTagModal.classList.remove('visible');
+        });
+
+        // 切换时间分配统计表
+        toggleSummaryButton.addEventListener('click', function() {
+            summaryContainer.classList.toggle('visible');
+            
+            if (summaryContainer.classList.contains('visible')) {
+                toggleSummaryButton.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    隐藏时间分配统计表
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                `;
+            } else {
+                toggleSummaryButton.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    显示时间分配统计表
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                `;
+            }
+        });
+
+        // 主题切换
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // 初始化
         initializeDatePicker();
         loadData();
+        loadTheme();
+        listenForSystemThemeChanges();
     </script>
 </body>
 </html>
