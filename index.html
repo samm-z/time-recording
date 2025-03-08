@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>时间记录表</title>
     <link rel="icon" href="calendar.png" type="image/png">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1538549159022174"
-     crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
             --primary: #3b82f6;
@@ -298,6 +298,13 @@
             z-index: 10;
         }
 
+        .dark .badge-tooltip {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+
+        
         .badge:hover .badge-tooltip {
             opacity: 1;
         }
@@ -474,6 +481,107 @@
             right: 1.5rem;
             top: 1.5rem;
         }
+        
+        .theme-toggle {
+            background: none;
+            color: var(--text); /* 文字颜色为深色 */
+            cursor: pointer;
+            padding: 0.5rem; /* 适当的内边距 */
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            border-radius: 50%; /* 圆形按钮 */
+            transition: var(--transition); /* 添加过渡效果 */
+            width: 40px; /* 固定宽度 */
+            height: 40px; /* 固定高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 使图标居中 */
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* 鼠标悬停时轻微变色 */
+        }
+
+        .dark .btn-edit, .dark .btn-delete {
+            background-color: var(--secondary-hover); /* 设置按钮背景颜色稍深 */
+            color: white; /* 文字颜色保持白色 */
+        }
+
+        .dark .btn-edit:hover,
+        .dark .btn-delete:hover {
+            background-color: var(--secondary); /* 悬停时变为稍浅的颜色 */
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem; /* 为每个 section 的标题增加下边距 */
+        }
+
+        .tag-list {
+            margin-top: 0.3rem; /* 增加标签列表与标题之间的间距 */
+        }
+
+        /* 需要放大的元素 */
+        .btn-primary,
+        .btn-danger,
+        .btn-edit,
+        .btn-delete,
+        .badge,
+        .tag-item {
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+
+        .btn-primary:hover,
+        .btn-success:hover,
+        .btn-danger:hover,
+        .btn-edit:hover,
+        .btn-delete:hover,
+        .badge:hover,
+        .tag-item:hover {
+            transform: scale(1.1); /* 悬停时放大 10% */
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .button-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        .button-group div {
+            display: flex;
+            gap: 0.5rem; /* 让按钮贴近一点 */
+        }
+
 
         @media (max-width: 640px) {
             .card-header {
@@ -558,9 +666,12 @@
                         <button type="submit" class="btn btn-primary">
                             提交
                         </button>
-                        <button type="button" id="clearButton" class="btn btn-danger">
-                            清除记录
-                        </button>
+                        <div>
+                            <button type="button" id="clearButton" class="btn btn-danger">
+                                清除记录
+                            </button>
+                            <button type="button" id="exportButton" class="btn btn-success">导出</button>
+                        </div>   
                     </div>
                 </form>
 
@@ -631,7 +742,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.1
+            ©️Sam Zhang v2.5
         </div>
     </div>
 
@@ -664,6 +775,7 @@
     </div>
 
     <script>
+        
         // 全局变量
         let records = [];
         let tags = new Set();
@@ -975,6 +1087,63 @@
             calculateTimeDistribution();
         }
 
+        // 导出按钮
+        document.getElementById('exportButton').addEventListener('click', function () {
+            const targetElement = document.querySelector('.container');  // 仅截取主要内容
+            const summaryContainer = document.getElementById('summaryContainer'); // 统计表
+            const toggleSummaryButton = document.getElementById('toggleSummaryButton'); // 统计按钮
+
+            // 如果时间分配统计表当前是隐藏的，就先展开
+            let wasHidden = !summaryContainer.classList.contains('visible');
+            if (wasHidden) {
+                summaryContainer.classList.add('visible');
+                toggleSummaryButton.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    隐藏时间分配统计表
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                `;
+            }
+
+            // 等待 300ms，确保动画完成后再截图
+            setTimeout(() => {
+                html2canvas(targetElement, {
+                    useCORS: true,
+                    scale: window.devicePixelRatio
+                }).then(canvas => {
+                    let link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');  
+                    link.download = `时间记录表_${new Date().toISOString().split('T')[0]}.png`;
+                    link.click();
+
+                    // 截图后恢复时间分配统计表的原始状态（如果它原来是隐藏的，则关闭）
+                    if (wasHidden) {
+                        summaryContainer.classList.remove('visible');
+                        toggleSummaryButton.innerHTML = `
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                            显示时间分配统计表
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        `;
+                    }
+                }).catch(error => console.error('截图失败:', error));
+            }, 300);
+        });
+
+
+
+
+
         // 计算时间分配
         function calculateTimeDistribution() {
             const selectedDate = datePicker.value;
@@ -1283,7 +1452,57 @@
         // 监听系统主题变化
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
 
+// 获取所有时间输入框
+const timeInputs = [startHour, startMinute, endHour, endMinute];
 
+// 自动跳转焦点函数
+function handleAutoTab(currentInput, nextInput) {
+    if (currentInput.value.length >= 2) {
+        nextInput.focus();
+        nextInput.select(); // 自动选中内容方便修改
+    }
+    
+    // 处理删除操作（当清空内容时返回前一个输入框）
+    if (currentInput.value === '' && event.inputType === 'deleteContentBackward') {
+        const prevIndex = timeInputs.indexOf(currentInput) - 1;
+        if (prevIndex >= 0) {
+            timeInputs[prevIndex].focus();
+            timeInputs[prevIndex].select();
+        }
+    }
+}
+
+// 为每个输入框添加事件监听
+timeInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+        // 自动补零（输入1会自动变成01）
+        if (e.target.value.length === 1 && e.target.value > 5 && e.target === startMinute) {
+            e.target.value = '0' + e.target.value;
+        }
+        
+        // 自动跳转逻辑
+        if (index < 3) { // 最后一个输入框不需要跳转
+            handleAutoTab(input, timeInputs[index + 1])
+        }
+        
+        // 自动同步结束时间小时（当开始小时变化时）
+        if (input === startHour && !endHour.value) {
+            endHour.value = input.value.padStart(2, '0');
+        }
+    });
+    
+    // 处理粘贴操作
+    input.addEventListener('paste', (e) => {
+        setTimeout(() => {
+            if (input.value.length >= 2) {
+                handleAutoTab(input, timeInputs[index + 1])
+            }
+        }, 0);
+    });
+});
+
+// 初始自动聚焦开始小时
+startHour.focus();
 
         // 初始加载时匹配系统主题
         applySystemTheme();
