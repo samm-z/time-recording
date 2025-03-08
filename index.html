@@ -490,6 +490,50 @@
                 min-width: 600px;
             }
         }
+
+        /* 新增样式 */
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem 0.75rem;
+            min-height: 42px;
+        }
+
+        .tag-item {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .tag-input {
+            border: none;
+            background: transparent;
+            color: var(--text);
+            outline: none;
+            flex-grow: 1;
+            min-width: 100px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tag-remove:hover {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -540,13 +584,15 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="tag" class="form-label">标签</label>
+                                <label for="tags" class="form-label">标签（输入后按回车）</label>
                                 <div class="form-input-group">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                                         <line x1="7" y1="7" x2="7.01" y2="7"></line>
                                     </svg>
-                                    <input type="text" id="tag" class="form-input" placeholder="输入标签" list="tagOptions">
+                                    <div class="tags-input-container" id="tagsContainer">
+                                        <input type="text" id="tagInput" class="tag-input" placeholder="输入标签" list="tagOptions">
+                                    </div>
                                     <datalist id="tagOptions"></datalist>
                                 </div>
                             </div>
@@ -629,7 +675,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.0
+            ©️Sam Zhang v2.3
         </div>
     </div>
 
@@ -665,6 +711,7 @@
         // 全局变量
         let records = [];
         let tags = new Set();
+        let currentTags = [];
         let currentIndexToDelete = null;
         let currentTagToDelete = null;
         let deleteType = 'record'; // 'record' 或 'all'
@@ -676,7 +723,8 @@
         const endHour = document.getElementById('endHour');
         const endMinute = document.getElementById('endMinute');
         const activity = document.getElementById('activity');
-        const tag = document.getElementById('tag');
+        const tagInput = document.getElementById('tagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
         const tagOptions = document.getElementById('tagOptions');
         const recordTable = document.getElementById('recordTable');
         const recordCount = document.getElementById('recordCount');
@@ -799,17 +847,19 @@
                     r.date === record.date && 
                     r.time === record.time && 
                     r.activity === record.activity && 
-                    r.tag === record.tag
+                    JSON.stringify(r.tags) === JSON.stringify(record.tags)
                 );
                 
                 row.innerHTML = `
                     <td>${record.time}</td>
                     <td>${record.activity}</td>
                     <td>
-                        <span class="badge">
-                            ${record.tag || '其他'}
-                            <span class="badge-tooltip">${calculateTagPercentage(record.tag)}%</span>
-                        </span>
+                        ${record.tags.map(tag => `
+                            <span class="badge">
+                                ${tag}
+                                <span class="badge-tooltip">${calculateTagPercentage(tag)}%</span>
+                            </span>
+                        `).join(' ')}
                     </td>
                     <td>
                         <div class="action-buttons">
@@ -902,7 +952,7 @@
                 const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
                 totalTime += duration;
                 
-                if (record.tag === tagName) {
+                if (record.tags.includes(tagName)) {
                     tagTime += duration;
                 }
             });
@@ -922,7 +972,8 @@
             endHour.value = endHourVal;
             endMinute.value = endMinuteVal;
             activity.value = record.activity;
-            tag.value = record.tag;
+            currentTags = record.tags.map(tag => ({ id: Date.now(), name: tag }));
+            renderTags();
             
             // 删除记录
             records.splice(index, 1);
@@ -945,8 +996,9 @@
             
             // 更新记录中的标签
             records.forEach(record => {
-                if (record.tag === tagName) {
-                    record.tag = '其他';
+                record.tags = record.tags.filter(tag => tag !== tagName);
+                if (record.tags.length === 0) {
+                    record.tags.push('其他');
                 }
             });
             
@@ -984,7 +1036,7 @@
             
             filteredRecords.forEach(record => {
                 const activity = record.activity || '未分类';
-                const tag = record.tag || '其他';
+                const tags = record.tags.length > 0 ? record.tags : ['其他'];
                 const [startTime, endTime] = record.time.split(' - ');
                 const [startHour, startMinute] = startTime.split(':').map(Number);
                 const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -993,7 +1045,9 @@
                 totalTime += duration;
                 
                 activitySummaryData[activity] = (activitySummaryData[activity] || 0) + duration;
-                tagSummaryData[tag] = (tagSummaryData[tag] || 0) + duration;
+                tags.forEach(tag => {
+                    tagSummaryData[tag] = (tagSummaryData[tag] || 0) + duration;
+                });
             });
             
             // 活动时间分配
@@ -1109,7 +1163,71 @@
             }
         }
 
-        // 事件监听器
+        // 添加标签函数
+        function addTag(tagName) {
+            if (!tagName.trim()) return;
+            
+            const tag = {
+                id: Date.now(),
+                name: tagName.trim()
+            };
+
+            currentTags.push(tag);
+            renderTags();
+            tagInput.value = '';
+            
+            // 添加到全局标签集合
+            if (!tags.has(tag.name)) {
+                tags.add(tag.name);
+                updateTagOptions();
+            }
+        }
+
+        // 删除标签函数
+        function removeTag(tagId) {
+            currentTags = currentTags.filter(tag => tag.id !== tagId);
+            renderTags();
+        }
+
+        // 渲染标签
+        function renderTags() {
+            tagsContainer.innerHTML = '';
+            currentTags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag-item';
+                tagElement.innerHTML = `
+                    ${tag.name}
+                    <span class="tag-remove" onclick="removeTag(${tag.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+            tagsContainer.appendChild(tagInput);
+        }
+
+        // 更新标签选项
+        function updateTagOptions() {
+            tagOptions.innerHTML = '';
+            [...tags].forEach(tagName => {
+                const option = document.createElement('option');
+                option.value = tagName;
+                tagOptions.appendChild(option);
+            });
+        }
+
+        // 标签输入事件处理
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(tagInput.value);
+            }
+        });
+
+        // 修改表单提交处理
         timeForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1118,7 +1236,6 @@
             const endHourVal = parseInt(endHour.value);
             const endMinuteVal = parseInt(endMinute.value);
             const activityVal = activity.value;
-            const tagVal = tag.value || '其他';
             const selectedDate = datePicker.value;
             
             if (!validateTime(startHourVal, startMinuteVal) || !validateTime(endHourVal, endMinuteVal)) {
@@ -1140,7 +1257,7 @@
                 date: selectedDate,
                 time: recordTime,
                 activity: activityVal,
-                tag: tagVal
+                tags: currentTags.map(t => t.name) || ['其他']
             };
             
             records.push(newRecord);
@@ -1160,15 +1277,6 @@
                 return (aHour - bHour) || (aMinute - bMinute);
             });
             
-            if (tagVal && !tags.has(tagVal)) {
-                tags.add(tagVal);
-                
-                // 更新标签选项
-                const option = document.createElement('option');
-                option.value = tagVal;
-                tagOptions.appendChild(option);
-            }
-            
             saveData();
             updateRecordsTable();
             updateTagList();
@@ -1176,6 +1284,8 @@
             
             // 重置表单
             timeForm.reset();
+            currentTags = [];
+            renderTags();
         });
 
         // 自动填充结束时间
@@ -1264,21 +1374,21 @@
         themeToggle.addEventListener('click', toggleTheme);
         
         function loadTheme() {
-    const isDark = localStorage.getItem('darkMode') === 'true' || 
-                   (localStorage.getItem('darkMode') === null && 
-                   window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    if (isDark) {
-        document.documentElement.classList.add('dark');
-        themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-    }
-}
+            const isDark = localStorage.getItem('darkMode') === 'true' || 
+                           (localStorage.getItem('darkMode') === null && 
+                           window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+            }
+        }
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        const isDark = event.matches;
-        document.documentElement.classList.toggle('dark', isDark);
-        localStorage.setItem('darkMode', isDark);
-    });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            const isDark = event.matches;
+            document.documentElement.classList.toggle('dark', isDark);
+            localStorage.setItem('darkMode', isDark);
+        });
 
         // 初始化
         initializeDatePicker();
