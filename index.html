@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>时间记录表</title>
     <link rel="icon" href="calendar.png" type="image/png">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1538549159022174"
-     crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -665,12 +663,12 @@
                         </div>
                     </div>
                     <div class="button-group">
-                        <button type="submit" class="btn btn-primary">
-                            提交
+                        <button type="button" id="clearButton" class="btn btn-danger">
+                            清除记录
                         </button>
-                        <div>
-                            <button type="button" id="clearButton" class="btn btn-danger">
-                                清除记录
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button type="submit" class="btn btn-primary">
+                                提交
                             </button>
                             <button type="button" id="exportButton" class="btn btn-success">导出</button>
                         </div>   
@@ -744,7 +742,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.5
+            ©️Sam Zhang v2.6
         </div>
     </div>
 
