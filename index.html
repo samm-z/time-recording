@@ -34,6 +34,7 @@
             --primary-light: #1e3a8a;
             --secondary: #374151;
             --secondary-hover: #4b5563;
+            --secondary-darker: #404958;
             --danger: #ef4444;
             --danger-hover: #f87171;
             --success: #10b981;
@@ -198,6 +199,20 @@
             background-color: var(--primary-hover);
         }
 
+        .btn-primary svg, .btn-danger svg {
+            stroke: white;
+        }
+
+        .btn-primary, .btn-danger {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover, .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
         .btn-danger {
             background-color: var(--danger);
             color: white;
@@ -268,6 +283,21 @@
 
         tr:last-child td {
             border-bottom: none;
+        }
+
+        /* 表格行悬停效果 */
+        tr {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        tr:hover {
+            background-color: var(--secondary);
+            cursor: pointer;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .badge {
@@ -503,14 +533,22 @@
             background-color: rgba(255, 255, 255, 0.2); /* 鼠标悬停时轻微变色 */
         }
 
-        .dark .btn-edit, .dark .btn-delete {
-            background-color: var(--secondary-hover); /* 设置按钮背景颜色稍深 */
-            color: white; /* 文字颜色保持白色 */
+        .btn-edit, .btn-delete {
+            background-color: #e5e7eb; /* 浅色模式下的基本背景色 */
+            color: #f3f4f6; /* 浅色模式下的图标颜色改为浅灰色 */
         }
 
-        .dark .btn-edit:hover,
-        .dark .btn-delete:hover {
-            background-color: var(--secondary); /* 悬停时变为稍浅的颜色 */
+        .btn-edit:hover, .btn-delete:hover {
+            background-color: #d1d5db; /* 浅色模式下悬停时的背景色 */
+        }
+
+        .dark .btn-edit, .dark .btn-delete {
+            background-color: var(--secondary-hover); /* 深色模式下的背景色 */
+            color: white; /* 深色模式下的文字颜色 */
+        }
+
+        .dark .btn-edit:hover, .dark .btn-delete:hover {
+            background-color: var(--secondary-darker); /* 深色模式下悬停时的背景色 */
         }
 
         .section-header {
@@ -743,10 +781,18 @@
                     </div>
                     <div class="button-group">
                         <button type="button" id="clearButton" class="btn btn-danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
                             清除记录
                         </button>
                         <div style="display: flex; gap: 0.5rem;">
                             <button type="submit" class="btn btn-primary">
+                                <!-- 方案二：使用保存图标 -->
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <path d="M17 21v-8H7v8M7 3v5h8"/>
+                                </svg>
                                 提交
                             </button>
                         </div>   
@@ -820,7 +866,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.6
+            ©️Sam Zhang v2.8
         </div>
     </div>
 
@@ -1605,3 +1651,4 @@
     </script>
 </body>
 </html>
+
