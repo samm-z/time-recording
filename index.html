@@ -1486,16 +1486,16 @@
             timeForm.reset();
         });
 
-        // 自动填充结束时间
-        startHour.addEventListener('input', function() {
-            if (startHour.value && startMinute.value) {
-                endHour.value = startHour.value;
+        // 监听开始时间的输入，自动填充结束时间
+        startHour.addEventListener('input', function () {
+            if (startHour.value) {
+                endHour.value = startHour.value.padStart(2, '0'); // 补零
             }
         });
 
-        startMinute.addEventListener('input', function() {
-            if (startHour.value && startMinute.value) {
-                endMinute.value = startMinute.value;
+        startMinute.addEventListener('input', function () {
+            if (startMinute.value) {
+                endMinute.value = startMinute.value.padStart(2, '0'); // 补零
             }
         });
 
