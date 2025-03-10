@@ -582,6 +582,78 @@
             gap: 0.5rem; /* 让按钮贴近一点 */
         }
 
+        /* 悬浮操作按钮样式 */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            background-color: var(--success);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 40;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            background-color: var(--success-hover);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .fab svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        /* 悬浮按钮提示文本 */
+        .fab-tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--text);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .dark .fab-tooltip {
+            background-color: var(--card);
+            color: var(--text);
+        }
+
+        .fab:hover .fab-tooltip {
+            opacity: 1;
+        }
+
+        /* 添加悬浮按钮动画 */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .fab {
+            animation: pulse 2s infinite;
+        }
 
         @media (max-width: 640px) {
             .card-header {
@@ -598,6 +670,13 @@
             
             table {
                 min-width: 600px;
+            }
+
+            .fab {
+                bottom: 1.5rem;
+                right: 1.5rem;
+                width: 3rem;
+                height: 3rem;
             }
         }
     </style>
@@ -670,7 +749,6 @@
                             <button type="submit" class="btn btn-primary">
                                 提交
                             </button>
-                            <button type="button" id="exportButton" class="btn btn-success">导出</button>
                         </div>   
                     </div>
                 </form>
@@ -746,6 +824,16 @@
         </div>
     </div>
 
+    <!-- 悬浮导出按钮 -->
+    <button id="exportButton" class="fab">
+        <span class="fab-tooltip">导出记录表</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+    </button>
+
     <!-- 删除确认模态框 -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
@@ -816,6 +904,7 @@
         const confirmDeleteTagButton = document.getElementById('confirmDeleteTagButton');
         const cancelDeleteTagButton = document.getElementById('cancelDeleteTagButton');
         const themeToggle = document.getElementById('themeToggle');
+        const exportButton = document.getElementById('exportButton');
 
         // 初始化日期选择器
         function initializeDatePicker() {
@@ -1087,8 +1176,8 @@
             calculateTimeDistribution();
         }
 
-        // 导出按钮
-        document.getElementById('exportButton').addEventListener('click', function () {
+        // 导出功能
+        exportButton.addEventListener('click', function () {
             const targetElement = document.querySelector('.container');  // 仅截取主要内容
             const summaryContainer = document.getElementById('summaryContainer'); // 统计表
             const toggleSummaryButton = document.getElementById('toggleSummaryButton'); // 统计按钮
@@ -1110,6 +1199,9 @@
                 `;
             }
 
+            // 添加导出动画效果
+            this.classList.add('exporting');
+            
             // 等待 300ms，确保动画完成后再截图
             setTimeout(() => {
                 html2canvas(targetElement, {
@@ -1136,13 +1228,12 @@
                             </svg>
                         `;
                     }
+                    
+                    // 移除导出动画效果
+                    this.classList.remove('exporting');
                 }).catch(error => console.error('截图失败:', error));
             }, 300);
         });
-
-
-
-
 
         // 计算时间分配
         function calculateTimeDistribution() {
@@ -1452,57 +1543,57 @@
         // 监听系统主题变化
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
 
-// 获取所有时间输入框
-const timeInputs = [startHour, startMinute, endHour, endMinute];
+        // 获取所有时间输入框
+        const timeInputs = [startHour, startMinute, endHour, endMinute];
 
-// 自动跳转焦点函数
-function handleAutoTab(currentInput, nextInput) {
-    if (currentInput.value.length >= 2) {
-        nextInput.focus();
-        nextInput.select(); // 自动选中内容方便修改
-    }
-    
-    // 处理删除操作（当清空内容时返回前一个输入框）
-    if (currentInput.value === '' && event.inputType === 'deleteContentBackward') {
-        const prevIndex = timeInputs.indexOf(currentInput) - 1;
-        if (prevIndex >= 0) {
-            timeInputs[prevIndex].focus();
-            timeInputs[prevIndex].select();
-        }
-    }
-}
-
-// 为每个输入框添加事件监听
-timeInputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-        // 自动补零（输入1会自动变成01）
-        if (e.target.value.length === 1 && e.target.value > 5 && e.target === startMinute) {
-            e.target.value = '0' + e.target.value;
-        }
-        
-        // 自动跳转逻辑
-        if (index < 3) { // 最后一个输入框不需要跳转
-            handleAutoTab(input, timeInputs[index + 1])
-        }
-        
-        // 自动同步结束时间小时（当开始小时变化时）
-        if (input === startHour && !endHour.value) {
-            endHour.value = input.value.padStart(2, '0');
-        }
-    });
-    
-    // 处理粘贴操作
-    input.addEventListener('paste', (e) => {
-        setTimeout(() => {
-            if (input.value.length >= 2) {
-                handleAutoTab(input, timeInputs[index + 1])
+        // 自动跳转焦点函数
+        function handleAutoTab(currentInput, nextInput) {
+            if (currentInput.value.length >= 2) {
+                nextInput.focus();
+                nextInput.select(); // 自动选中内容方便修改
             }
-        }, 0);
-    });
-});
+            
+            // 处理删除操作（当清空内容时返回前一个输入框）
+            if (currentInput.value === '' && event.inputType === 'deleteContentBackward') {
+                const prevIndex = timeInputs.indexOf(currentInput) - 1;
+                if (prevIndex >= 0) {
+                    timeInputs[prevIndex].focus();
+                    timeInputs[prevIndex].select();
+                }
+            }
+        }
 
-// 初始自动聚焦开始小时
-startHour.focus();
+        // 为每个输入框添加事件监听
+        timeInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // 自动补零（输入1会自动变成01）
+                if (e.target.value.length === 1 && e.target.value > 5 && e.target === startMinute) {
+                    e.target.value = '0' + e.target.value;
+                }
+                
+                // 自动跳转逻辑
+                if (index < 3) { // 最后一个输入框不需要跳转
+                    handleAutoTab(input, timeInputs[index + 1])
+                }
+                
+                // 自动同步结束时间小时（当开始小时变化时）
+                if (input === startHour && !endHour.value) {
+                    endHour.value = input.value.padStart(2, '0');
+                }
+            });
+            
+            // 处理粘贴操作
+            input.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    if (input.value.length >= 2) {
+                        handleAutoTab(input, timeInputs[index + 1])
+                    }
+                }, 0);
+            });
+        });
+
+        // 初始自动聚焦开始小时
+        startHour.focus();
 
         // 初始加载时匹配系统主题
         applySystemTheme();
