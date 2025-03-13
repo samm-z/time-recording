@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1538549159022174"
-     crossorigin="anonymous"></script>
     
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -19,6 +16,9 @@
 
     <!-- 引入 html2canvas 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- 引入 localbase 库 -->
+    <script src="https://unpkg.com/localbase/dist/localbase.min.js"></script>
     
     <style>
         :root {
@@ -730,6 +730,170 @@
                 height: 3rem;
             }
         }
+
+        /* 更新弹窗样式 */
+        .update-modal {
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            height: 100vh;
+            justify-content: center;
+            left: 0;
+            position: fixed;
+            top: 0;
+            width: 100vw;
+            z-index: 60;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .update-modal.visible {
+            display: flex;
+        }
+
+        .update-modal-content {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            padding: 2rem;
+            width: 90%;
+            position: relative;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .update-modal-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .update-icon {
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            flex-shrink: 0;
+        }
+
+        .update-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .update-title-container {
+            flex-grow: 1;
+        }
+
+        .update-modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .update-version {
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .update-content {
+            margin-bottom: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .update-content h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .update-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .update-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .update-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .update-content p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .update-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .update-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .update-close-btn:hover {
+            background-color: var(--secondary);
+            color: var(--text);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 更新内容滚动条样式 */
+        .update-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .update-content::-webkit-scrollbar-track {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+
+        .update-content::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .update-content::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
+        }
     </style>
 </head>
 <body>
@@ -889,7 +1053,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.8
+            ©️Sam Zhang v2.9
         </div>
     </div>
 
@@ -931,7 +1095,63 @@
         </div>
     </div>
 
+    <!-- 更新弹窗 -->
+    <div id="updateModal" class="update-modal">
+        <div class="update-modal-content">
+            <button id="updateCloseButton" class="update-close-btn">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="update-modal-header">
+                <div class="update-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- 铃铛主体 -->
+                        <path d="M12 2.5c-4.2 0-7 2.5-7 7.5 0 8-2.5 10-2.5 10h19s-2.5-2-2.5-10c0-5-2.8-7.5-7-7.5Z"/>
+                        <!-- 通知点 -->
+                        <circle cx="19" cy="4.5" r="3.2" fill="currentColor"/>
+                        <!-- 底部装饰 -->
+                        <path d="M15 21H9a2.5 2.5 0 1 0 6 0Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="update-title-container">
+                    <h2 class="update-modal-title">欢迎使用新版本</h2>
+                    <div class="update-version" id="updateVersion">v2.9</div>
+                </div>
+            </div>
+            <div class="update-content" id="updateContent">
+                <!-- 更新内容将通过JavaScript动态添加 -->
+            </div>
+            <div class="update-modal-footer">
+                <button id="updateConfirmButton" class="btn btn-primary">我知道了</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 初始化 localbase
+        const db = new Localbase('timeTracker');
+        
+        // 应用版本信息
+        const APP_VERSION = '2.9';
+        const APP_UPDATE_INFO = {
+            version: 'v2.9',
+            content: `
+                <h3>新功能</h3>
+                <ul>
+                    <li>添加了更新提示功能，在网站更新后首次打开会显示更新内容</li>
+                </ul>
+                <h3>改进</h3>
+                <ul>
+                    <li>改进了数据导出功能</li>
+                </ul>
+                <h3>修复</h3>
+                <ul>
+                    <li>修复了一些已知问题</li>
+                </ul>
+            `
+        };
         
         // 全局变量
         let records = [];
@@ -974,6 +1194,11 @@
         const cancelDeleteTagButton = document.getElementById('cancelDeleteTagButton');
         const themeToggle = document.getElementById('themeToggle');
         const exportButton = document.getElementById('exportButton');
+        const updateModal = document.getElementById('updateModal');
+        const updateVersion = document.getElementById('updateVersion');
+        const updateContent = document.getElementById('updateContent');
+        const updateCloseButton = document.getElementById('updateCloseButton');
+        const updateConfirmButton = document.getElementById('updateConfirmButton');
 
         // 初始化日期选择器
         function initializeDatePicker() {
@@ -985,37 +1210,101 @@
             datePicker.value = formattedDate;
         }
 
-        // 保存数据到 localStorage
-        function saveData() {
-            localStorage.setItem('records', JSON.stringify(records));
-            localStorage.setItem('tags', JSON.stringify([...tags]));
+        // 保存数据到 localbase
+        async function saveData() {
+            try {
+                // 保存记录
+                await db.collection('records').set(records);
+                
+                // 保存标签
+                await db.collection('tags').doc('tagList').set({
+                    tags: [...tags]
+                });
+                
+                // 同时保存到 localStorage 作为备份
+                localStorage.setItem('records', JSON.stringify(records));
+                localStorage.setItem('tags', JSON.stringify([...tags]));
+            } catch (error) {
+                console.error('保存数据失败:', error);
+                // 如果 localbase 保存失败，仍然保存到 localStorage
+                localStorage.setItem('records', JSON.stringify(records));
+                localStorage.setItem('tags', JSON.stringify([...tags]));
+            }
         }
 
-        // 从 localStorage 加载数据
-        function loadData() {
-            const savedRecords = localStorage.getItem('records');
-            const savedTags = localStorage.getItem('tags');
-            
-            if (savedRecords) {
-                records = JSON.parse(savedRecords);
-            }
-            
-            if (savedTags) {
-                const tagArray = JSON.parse(savedTags);
-                tags = new Set(tagArray);
+        // 从 localbase 加载数据
+        async function loadData() {
+            try {
+                // 加载记录
+                const savedRecords = await db.collection('records').get();
+                if (savedRecords && savedRecords.length > 0) {
+                    records = savedRecords;
+                } else {
+                    // 如果 localbase 中没有数据，尝试从 localStorage 加载
+                    const localRecords = localStorage.getItem('records');
+                    if (localRecords) {
+                        records = JSON.parse(localRecords);
+                        // 将数据保存到 localbase
+                        await db.collection('records').set(records);
+                    }
+                }
+                
+                // 加载标签
+                const savedTagsDoc = await db.collection('tags').doc('tagList').get();
+                if (savedTagsDoc && savedTagsDoc.tags) {
+                    tags = new Set(savedTagsDoc.tags);
+                } else {
+                    // 如果 localbase 中没有标签数据，尝试从 localStorage 加载
+                    const localTags = localStorage.getItem('tags');
+                    if (localTags) {
+                        const tagArray = JSON.parse(localTags);
+                        tags = new Set(tagArray);
+                        // 将标签保存到 localbase
+                        await db.collection('tags').doc('tagList').set({
+                            tags: tagArray
+                        });
+                    }
+                }
                 
                 // 更新标签选项
-                tagOptions.innerHTML = '';
-                tagArray.forEach(tagName => {
-                    const option = document.createElement('option');
-                    option.value = tagName;
-                    tagOptions.appendChild(option);
-                });
+                updateTagOptions();
+                
+                // 更新界面
+                updateRecordsTable();
+                updateTagList();
+                calculateTimeDistribution();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                // 如果 localbase 加载失败，尝试从 localStorage 加载
+                const savedRecords = localStorage.getItem('records');
+                const savedTags = localStorage.getItem('tags');
+                
+                if (savedRecords) {
+                    records = JSON.parse(savedRecords);
+                }
+                
+                if (savedTags) {
+                    const tagArray = JSON.parse(savedTags);
+                    tags = new Set(tagArray);
+                    
+                    // 更新标签选项
+                    updateTagOptions();
+                }
+                
+                updateRecordsTable();
+                updateTagList();
+                calculateTimeDistribution();
             }
-            
-            updateRecordsTable();
-            updateTagList();
-            calculateTimeDistribution();
+        }
+
+        // 更新标签选项
+        function updateTagOptions() {
+            tagOptions.innerHTML = '';
+            [...tags].forEach(tagName => {
+                const option = document.createElement('option');
+                option.value = tagName;
+                tagOptions.appendChild(option);
+            });
         }
 
         // 格式化时间
@@ -1228,12 +1517,7 @@
             calculateTimeDistribution();
             
             // 更新标签选项
-            tagOptions.innerHTML = '';
-            [...tags].forEach(tag => {
-                const option = document.createElement('option');
-                option.value = tag;
-                tagOptions.appendChild(option);
-            });
+            updateTagOptions();
         }
 
         // 清除记录
@@ -1440,6 +1724,52 @@
             }
         }
 
+        // 检查应用版本并显示更新弹窗
+        async function checkAppVersion() {
+            try {
+                // 从 localbase 获取上次使用的版本
+                const versionData = await db.collection('appInfo').doc('version').get();
+                const lastVersion = versionData ? versionData.version : null;
+                
+                // 如果没有版本记录或版本不同，显示更新弹窗
+                if (!lastVersion || lastVersion !== APP_VERSION) {
+                    // 更新版本信息
+                    updateVersion.textContent = APP_UPDATE_INFO.version;
+                    updateContent.innerHTML = APP_UPDATE_INFO.content;
+                    
+                    // 显示更新弹窗
+                    updateModal.classList.add('visible');
+                    
+                    // 保存新版本信息
+                    await db.collection('appInfo').doc('version').set({
+                        version: APP_VERSION,
+                        updateTime: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('检查版本失败:', error);
+                // 如果 localbase 操作失败，尝试使用 localStorage
+                const lastVersion = localStorage.getItem('appVersion');
+                
+                if (!lastVersion || lastVersion !== APP_VERSION) {
+                    // 更新版本信息
+                    updateVersion.textContent = APP_UPDATE_INFO.version;
+                    updateContent.innerHTML = APP_UPDATE_INFO.content;
+                    
+                    // 显示更新弹窗
+                    updateModal.classList.add('visible');
+                    
+                    // 保存新版本信息到 localStorage
+                    localStorage.setItem('appVersion', APP_VERSION);
+                }
+            }
+        }
+
+        // 关闭更新弹窗
+        function closeUpdateModal() {
+            updateModal.classList.remove('visible');
+        }
+
         // 事件监听器
         timeForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1594,6 +1924,10 @@
         // 主题切换
         themeToggle.addEventListener('click', toggleTheme);
 
+        // 更新弹窗关闭按钮
+        updateCloseButton.addEventListener('click', closeUpdateModal);
+        updateConfirmButton.addEventListener('click', closeUpdateModal);
+
         // 自动匹配系统主题
         function applySystemTheme() {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -1671,6 +2005,7 @@
         initializeDatePicker();
         loadData();
         loadTheme();
+        checkAppVersion(); // 检查应用版本并显示更新弹窗
     </script>
     
     <!-- Google Tag Manager (noscript) -->
