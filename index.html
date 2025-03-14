@@ -322,6 +322,8 @@
             font-weight: 500;
             padding: 0.25rem 0.75rem;
             position: relative;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
         }
 
         .badge-tooltip {
@@ -346,8 +348,6 @@
             color: var(--text);
         }
 
-
-        
         .badge:hover .badge-tooltip {
             opacity: 1;
         }
@@ -894,6 +894,84 @@
         .update-content::-webkit-scrollbar-thumb:hover {
             background: var(--primary-hover);
         }
+
+        /* 多标签输入样式 */
+        .tags-input-container {
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background-color: var(--background);
+            min-height: 38px;
+        }
+
+        .tags-input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .tag-badge {
+            display: flex;
+            align-items: center;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-radius: 9999px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+
+        .dark .tag-badge {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .tag-badge-delete {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .tag-badge-delete:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .tag-badge-delete {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .tag-badge-delete:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tags-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 0.875rem;
+            min-width: 120px;
+            padding: 0.25rem;
+        }
+
+        .tag-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -954,14 +1032,16 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="tag" class="form-label">标签</label>
+                                <label for="tagInput" class="form-label">标签</label>
                                 <div class="form-input-group">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                                         <line x1="7" y1="7" x2="7.01" y2="7"></line>
                                     </svg>
-                                    <input type="text" id="tag" class="form-input" placeholder="输入标签" list="tagOptions">
-                                    <datalist id="tagOptions"></datalist>
+                                    <div class="tags-input-container" id="tagsContainer">
+                                        <input type="text" id="tagInput" class="tags-input" placeholder="输入标签后按回车添加" list="tagOptions">
+                                        <datalist id="tagOptions"></datalist>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1053,7 +1133,7 @@
         </div>
         
         <div class="footer">
-            ©️Sam Zhang v2.9
+            ©️Sam Zhang v2.10
         </div>
     </div>
 
@@ -1117,7 +1197,7 @@
                 </div>
                 <div class="update-title-container">
                     <h2 class="update-modal-title">欢迎使用新版本</h2>
-                    <div class="update-version" id="updateVersion">v2.9</div>
+                    <div class="update-version" id="updateVersion">v2.10</div>
                 </div>
             </div>
             <div class="update-content" id="updateContent">
@@ -1134,17 +1214,21 @@
         const db = new Localbase('timeTracker');
         
         // 应用版本信息
-        const APP_VERSION = '2.9';
+        const APP_VERSION = '2.10';
         const APP_UPDATE_INFO = {
-            version: 'v2.9',
+            version: 'v2.10',
             content: `
                 <h3>新功能</h3>
                 <ul>
-                    <li>添加了更新提示功能，在网站更新后首次打开会显示更新内容</li>
+                    <li>支持多标签功能：现在可以为一个事件添加多个标签</li>
+                    <li>标签输入优化：输入标签后按回车键即可添加，更加便捷</li>
                 </ul>
                 <h3>改进</h3>
                 <ul>
-                    <li>改进了数据导出功能</li>
+                    <li>标签显示样式优化，更加美观</li>
+                    <li>标签统计功能增强，支持多标签统计</li>
+                    <li>修复标签管理中标签重复显示的问题</li>
+                    <li>修复添加后删除的标签仍会显示在标签管理中的问题</li>
                 </ul>
                 <h3>修复</h3>
                 <ul>
@@ -1159,6 +1243,8 @@
         let currentIndexToDelete = null;
         let currentTagToDelete = null;
         let deleteType = 'record'; // 'record' 或 'all'
+        let currentTags = []; // 当前选择的标签数组
+        let tempTags = new Set(); // 临时标签集合，用于存储当前表单中添加的标签
 
         // DOM 元素
         const datePicker = document.getElementById('datePicker');
@@ -1167,7 +1253,8 @@
         const endHour = document.getElementById('endHour');
         const endMinute = document.getElementById('endMinute');
         const activity = document.getElementById('activity');
-        const tag = document.getElementById('tag');
+        const tagInput = document.getElementById('tagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
         const tagOptions = document.getElementById('tagOptions');
         const recordTable = document.getElementById('recordTable');
         const recordCount = document.getElementById('recordCount');
@@ -1239,11 +1326,28 @@
                 const savedRecords = await db.collection('records').get();
                 if (savedRecords && savedRecords.length > 0) {
                     records = savedRecords;
+                    
+                    // 兼容旧版本数据，将单标签转换为标签数组
+                    records.forEach(record => {
+                        if (!Array.isArray(record.tags)) {
+                            record.tags = record.tag ? [record.tag] : [];
+                            delete record.tag; // 删除旧的标签字段
+                        }
+                    });
                 } else {
                     // 如果 localbase 中没有数据，尝试从 localStorage 加载
                     const localRecords = localStorage.getItem('records');
                     if (localRecords) {
                         records = JSON.parse(localRecords);
+                        
+                        // 兼容旧版本数据，将单标签转换为标签数组
+                        records.forEach(record => {
+                            if (!Array.isArray(record.tags)) {
+                                record.tags = record.tag ? [record.tag] : [];
+                                delete record.tag; // 删除旧的标签字段
+                            }
+                        });
+                        
                         // 将数据保存到 localbase
                         await db.collection('records').set(records);
                     }
@@ -1281,6 +1385,14 @@
                 
                 if (savedRecords) {
                     records = JSON.parse(savedRecords);
+                    
+                    // 兼容旧版本数据，将单标签转换为标签数组
+                    records.forEach(record => {
+                        if (!Array.isArray(record.tags)) {
+                            record.tags = record.tag ? [record.tag] : [];
+                            delete record.tag; // 删除旧的标签字段
+                        }
+                    });
                 }
                 
                 if (savedTags) {
@@ -1360,18 +1472,33 @@
                     r.date === record.date && 
                     r.time === record.time && 
                     r.activity === record.activity && 
-                    r.tag === record.tag
+                    JSON.stringify(r.tags) === JSON.stringify(record.tags)
                 );
+                
+                // 创建标签HTML
+                let tagsHtml = '';
+                if (record.tags && record.tags.length > 0) {
+                    record.tags.forEach(tag => {
+                        tagsHtml += `
+                            <span class="badge">
+                                ${tag || '其他'}
+                                <span class="badge-tooltip">${calculateTagPercentage(tag)}%</span>
+                            </span>
+                        `;
+                    });
+                } else {
+                    tagsHtml = `
+                        <span class="badge">
+                            其他
+                            <span class="badge-tooltip">${calculateTagPercentage('其他')}%</span>
+                        </span>
+                    `;
+                }
                 
                 row.innerHTML = `
                     <td>${record.time}</td>
                     <td>${record.activity}</td>
-                    <td>
-                        <span class="badge">
-                            ${record.tag || '其他'}
-                            <span class="badge-tooltip">${calculateTagPercentage(record.tag)}%</span>
-                        </span>
-                    </td>
+                    <td>${tagsHtml}</td>
                     <td>
                         <div class="action-buttons">
                             <button type="button" class="btn btn-icon btn-edit" data-index="${originalIndex}">
@@ -1409,9 +1536,25 @@
             });
         }
 
-        // 更新标签列表
+        // 获取所有使用中的标签
+        function getUsedTags() {
+            const usedTags = new Set();
+            records.forEach(record => {
+                if (record.tags && record.tags.length > 0) {
+                    record.tags.forEach(tag => {
+                        if (tag) usedTags.add(tag);
+                    });
+                }
+            });
+            return usedTags;
+        }
+
+        // 更新标签列表 - 修复重复标签问题和未使用标签问题
         function updateTagList() {
-            if (tags.size === 0) {
+            // 获取所有使用中的标签
+            const usedTags = getUsedTags();
+            
+            if (usedTags.size === 0) {
                 tagList.style.display = 'none';
                 emptyTags.style.display = 'block';
                 return;
@@ -1422,7 +1565,10 @@
             
             tagList.innerHTML = '';
             
-            [...tags].forEach(tagName => {
+            // 使用数组去重，确保每个标签只显示一次，并且只显示使用中的标签
+            const uniqueTags = [...usedTags];
+            
+            uniqueTags.forEach(tagName => {
                 const tagItem = document.createElement('div');
                 tagItem.className = 'tag-item';
                 tagItem.innerHTML = `
@@ -1463,7 +1609,7 @@
                 const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
                 totalTime += duration;
                 
-                if (record.tag === tagName) {
+                if (record.tags && record.tags.includes(tagName)) {
                     tagTime += duration;
                 }
             });
@@ -1483,7 +1629,19 @@
             endHour.value = endHourVal;
             endMinute.value = endMinuteVal;
             activity.value = record.activity;
-            tag.value = record.tag;
+            
+            // 清空当前标签
+            currentTags = [];
+            renderTags();
+            
+            // 添加记录中的标签
+            if (record.tags && record.tags.length > 0) {
+                record.tags.forEach(tag => {
+                    if (tag) {
+                        addTag(tag);
+                    }
+                });
+            }
             
             // 删除记录
             records.splice(index, 1);
@@ -1498,6 +1656,7 @@
             saveData();
             updateRecordsTable();
             calculateTimeDistribution();
+            updateTagList(); // 更新标签列表，移除未使用的标签
         }
 
         // 删除标签
@@ -1506,8 +1665,11 @@
             
             // 更新记录中的标签
             records.forEach(record => {
-                if (record.tag === tagName) {
-                    record.tag = '其他';
+                if (record.tags && record.tags.includes(tagName)) {
+                    record.tags = record.tags.filter(tag => tag !== tagName);
+                    if (record.tags.length === 0) {
+                        record.tags = ['其他'];
+                    }
                 }
             });
             
@@ -1527,6 +1689,7 @@
             saveData();
             updateRecordsTable();
             calculateTimeDistribution();
+            updateTagList(); // 更新标签列表，移除未使用的标签
         }
 
         // 导出功能
@@ -1599,7 +1762,6 @@
             
             filteredRecords.forEach(record => {
                 const activity = record.activity || '未分类';
-                const tag = record.tag || '其他';
                 const [startTime, endTime] = record.time.split(' - ');
                 const [startHour, startMinute] = startTime.split(':').map(Number);
                 const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -1608,7 +1770,16 @@
                 totalTime += duration;
                 
                 activitySummaryData[activity] = (activitySummaryData[activity] || 0) + duration;
-                tagSummaryData[tag] = (tagSummaryData[tag] || 0) + duration;
+                
+                // 处理多标签
+                if (record.tags && record.tags.length > 0) {
+                    record.tags.forEach(tag => {
+                        const tagName = tag || '其他';
+                        tagSummaryData[tagName] = (tagSummaryData[tagName] || 0) + duration;
+                    });
+                } else {
+                    tagSummaryData['其他'] = (tagSummaryData['其他'] || 0) + duration;
+                }
             });
             
             // 活动时间分配
@@ -1770,6 +1941,77 @@
             updateModal.classList.remove('visible');
         }
 
+        // 添加标签
+        function addTag(tagText) {
+            if (!tagText || tagText.trim() === '') return;
+            
+            tagText = tagText.trim();
+            
+            // 检查标签是否已存在
+            if (currentTags.includes(tagText)) return;
+            
+            // 添加到当前标签数组
+            currentTags.push(tagText);
+            
+            // 添加到临时标签集合，但不立即添加到全局标签集合
+            tempTags.add(tagText);
+            
+            // 更新标签选项
+            updateTagOptions();
+            
+            // 渲染标签
+            renderTags();
+            
+            // 清空输入框
+            tagInput.value = '';
+        }
+
+        // 删除当前标签
+        function removeTag(index) {
+            // 从当前标签数组中移除
+            const removedTag = currentTags[index];
+            currentTags.splice(index, 1);
+            
+            // 从临时标签集合中移除
+            tempTags.delete(removedTag);
+            
+            // 渲染标签
+            renderTags();
+        }
+
+        // 渲染当前标签
+        function renderTags() {
+            // 清除现有标签，但保留输入框
+            const badges = tagsContainer.querySelectorAll('.tag-badge');
+            badges.forEach(badge => badge.remove());
+            
+            // 添加新标签
+            currentTags.forEach((tag, index) => {
+                const tagBadge = document.createElement('div');
+                tagBadge.className = 'tag-badge';
+                tagBadge.innerHTML = `
+                    ${tag}
+                    <span class="tag-badge-delete" data-index="${index}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                `;
+                
+                // 将标签插入到输入框之前
+                tagsContainer.insertBefore(tagBadge, tagInput);
+            });
+            
+            // 添加删除事件监听器
+            document.querySelectorAll('.tag-badge-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeTag(index);
+                });
+            });
+        }
+
         // 事件监听器
         timeForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1779,7 +2021,6 @@
             const endHourVal = parseInt(endHour.value);
             const endMinuteVal = parseInt(endMinute.value);
             const activityVal = activity.value;
-            const tagVal = tag.value || '其他';
             const selectedDate = datePicker.value;
             
             if (!validateTime(startHourVal, startMinuteVal) || !validateTime(endHourVal, endMinuteVal)) {
@@ -1797,11 +2038,14 @@
             
             const recordTime = `${formatTime(startHourVal)}:${formatTime(startMinuteVal)} - ${formatTime(endHourVal)}:${formatTime(endMinuteVal)}`;
             
+            // 使用当前标签数组，如果为空则使用"其他"
+            const recordTags = currentTags.length > 0 ? [...currentTags] : ['其他'];
+            
             const newRecord = {
                 date: selectedDate,
                 time: recordTime,
                 activity: activityVal,
-                tag: tagVal
+                tags: recordTags
             };
             
             records.push(newRecord);
@@ -1821,14 +2065,18 @@
                 return (aHour - bHour) || (aMinute - bMinute);
             });
             
-            if (tagVal && !tags.has(tagVal)) {
-                tags.add(tagVal);
-                
-                // 更新标签选项
-                const option = document.createElement('option');
-                option.value = tagVal;
-                tagOptions.appendChild(option);
-            }
+            // 保存所有实际使用的标签到全局标签集合
+            recordTags.forEach(tag => {
+                if (tag) {
+                    tags.add(tag);
+                }
+            });
+            
+            // 清空临时标签集合
+            tempTags.clear();
+            
+            // 更新标签选项
+            updateTagOptions();
             
             saveData();
             updateRecordsTable();
@@ -1837,6 +2085,8 @@
             
             // 重置表单
             timeForm.reset();
+            currentTags = [];
+            renderTags();
         });
 
         // 监听开始时间的输入，自动填充结束时间
@@ -1849,6 +2099,14 @@
         startMinute.addEventListener('input', function () {
             if (startMinute.value) {
                 endMinute.value = startMinute.value.padStart(2, '0'); // 补零
+            }
+        });
+
+        // 标签输入框回车事件
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 阻止表单提交
+                addTag(this.value);
             }
         });
 
