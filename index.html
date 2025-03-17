@@ -1,902 +1,908 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-K6P6VQXH');</script>
-    
-    <title>时间记录表</title>
-    <link rel="icon" href="calendar.png" type="image/png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 引入 html2canvas 库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- 引入 localbase 库 -->
-    <script src="https://unpkg.com/localbase/dist/localbase.min.js"></script>
-    
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --primary-light: #dbeafe;
-            --secondary: #f3f4f6;
-            --secondary-hover: #e5e7eb;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --success: #10b981;
-            --success-hover: #059669;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --background: #ffffff;
-            --card: #ffffff;
-            --border: #e5e7eb;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 0.5rem;
-            --transition: all 0.2s ease-in-out;
-        }
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K6P6VQXH');</script>
 
-        .dark {
-            --primary: #3b82f6;
-            --primary-hover: #60a5fa;
-            --primary-light: #1e3a8a;
-            --secondary: #374151;
-            --secondary-hover: #4b5563;
-            --secondary-darker: #404958;
-            --danger: #ef4444;
-            --danger-hover: #f87171;
-            --success: #10b981;
-            --success-hover: #34d399;
-            --text: #f9fafb;
-            --text-light: #9ca3af;
-            --background: #111827;
-            --card: #1f2937;
-            --border: #374151;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        }
+<title>时间记录表</title>
+<link rel="icon" href="calendar.png" type="image/png">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+<!-- 引入 html2canvas 库 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-        body {
-            background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 2rem 1rem;
-            transition: var(--transition);
-        }
+<!-- 引入 localbase 库 -->
+<script src="https://unpkg.com/localbase/dist/localbase.min.js"></script>
 
-        .dark body {
-            background: linear-gradient(to bottom, #111827, #0f172a);
-        }
+<style>
+    :root {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --primary-light: #dbeafe;
+        --secondary: #f3f4f6;
+        --secondary-hover: #e5e7eb;
+        --danger: #ef4444;
+        --danger-hover: #dc2626;
+        --import: #059669;
+        --import-hover: #05895f;
+        --success: #10b981;
+        --success-hover: #059669;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --background: #ffffff;
+        --card: #ffffff;
+        --border: #e5e7eb;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --radius: 0.5rem;
+        --transition: all 0.2s ease-in-out;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+    .dark {
+        --primary: #3b82f6;
+        --primary-hover: #60a5fa;
+        --primary-light: #1e3a8a;
+        --secondary: #374151;
+        --secondary-hover: #4b5563;
+        --secondary-darker: #404958;
+        --danger: #ef4444;
+        --danger-hover: #f87171;
+        --success: #10b981;
+        --success-hover: #34d399;
+        --text: #f9fafb;
+        --text-light: #9ca3af;
+        --background: #111827;
+        --card: #1f2937;
+        --border: #374151;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    }
 
-        .card {
-            background-color: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-        .card-header {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
-            color: white;
-            padding: 1.5rem;
-            position: relative;
-        }
+    body {
+        background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        transition: var(--transition);
+    }
 
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .dark body {
+        background: linear-gradient(to bottom, #111827, #0f172a);
+    }
 
-        .date-picker {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
 
-        .date-input {
-            background-color: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: var(--radius);
-            color: white;
-            padding: 0.5rem;
-            width: 150px;
-        }
+    .card {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: var(--transition);
+    }
 
-        .card-content {
-            padding: 1.5rem;
-        }
+    .card-header {
+        background: linear-gradient(to right, #3b82f6, #8b5cf6);
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+    }
 
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .date-picker {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .date-input {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: var(--radius);
+        color: white;
+        padding: 0.5rem;
+        width: 150px;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
         .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 1fr 1fr;
         }
+    }
 
-        @media (min-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-input {
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background-color: var(--background);
+        min-height: 38px;
+    }
+
+    .form-input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    .time-input {
+        width: 70px;
+    }
+
+    .icon {
+        color: var(--text-light);
+        width: 16px;
+        height: 16px;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        align-items: center;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 0.875rem;
+        font-weight: 500;
+        gap: 0.5rem;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .btn-primary svg, .btn-danger svg {
+        stroke: white;
+    }
+
+    .btn-primary, .btn-danger {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:hover, .btn-danger:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: var(--danger-hover);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--secondary);
+    }
+
+    .btn-icon {
+        padding: 0.25rem;
+        border-radius: 9999px;
+    }
+
+    .section {
+        margin-top: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .record-count {
+        color: var(--text-light);
+        font-size: 0.875rem;
+    }
+
+    .table-container {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 1rem;
+        text-align: left;
+    }
+
+    th {
+        background-color: var(--secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* 表格行悬停效果 */
+    tr {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+
+    tr:hover {
+        background-color: var(--secondary);
+        cursor: pointer;
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .badge {
+        background-color: var(--primary-light);
+        border-radius: 9999px;
+        color: var(--primary);
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        position: relative;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .badge-tooltip {
+        background-color: var(--text);
+        border-radius: 0.25rem;
+        bottom: 125%;
+        color: white;
+        font-size: 0.75rem;
+        left: 50%;
+        opacity: 0;
+        padding: 0.25rem 0.5rem;
+        pointer-events: none;
+        position: absolute;
+        transform: translateX(-50%);
+        transition: opacity 0.2s ease-in-out;
+        white-space: nowrap;
+        z-index: 10;
+    }
+
+    .dark .badge-tooltip {
+        background-color: var(--background);
+        color: var(--text);
+    }
+
+    .badge:hover .badge-tooltip {
+        opacity: 1;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-edit {
+        color: var(--success);
+    }
+
+    .btn-edit:hover {
+        color: var(--success-hover);
+    }
+
+    .btn-delete {
+        color: var(--danger);
+    }
+
+    .btn-delete:hover {
+        color: var(--danger-hover);
+    }
+
+    .empty-state {
+        background-color: var(--secondary);
+        border-radius: var(--radius);
+        color: var(--text-light);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .toggle-button {
+        width: 100%;
+    }
+
+    .summary-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .summary-container.visible {
+        max-height: 2000px;
+        margin-top: 1rem;
+    }
+
+    .progress-container {
+        margin-top: 0.25rem;
+    }
+
+    .progress-bar {
+        background-color: var(--secondary);
+        border-radius: 9999px;
+        height: 0.5rem;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .progress-value {
+        background-color: var(--primary);
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag-item {
+        align-items: center;
+        background-color: var(--secondary);
+        border-radius: 9999px;
+        display: flex;
+        font-size: 0.875rem;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .tag-delete {
+        align-items: center;
+        background-color: transparent;
+        border: none;
+        border-radius: 9999px;
+        color: var(--danger);
+        cursor: pointer;
+        display: flex;
+        height: 16px;
+        justify-content: center;
+        padding: 0;
+        width: 16px;
+    }
+
+    .tag-delete:hover {
+        color: var(--danger-hover);
+    }
+
+    .footer {
+        color: var(--text-light);
+        font-size: 0.75rem;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .modal {
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        height: 100vh;
+        justify-content: center;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+        z-index: 50;
+    }
+
+    .modal.visible {
+        display: flex;
+    }
+
+    .modal-content {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        max-width: 400px;
+        padding: 1.5rem;
+        width: 90%;
+    }
+
+    .modal-header {
+        margin-bottom: 1rem;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .modal-description {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .summary-item {
+        margin-bottom: 1rem;
+    }
+
+    .summary-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .theme-toggle {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+    }
+    
+    .theme-toggle {
+        background: none;
+        color: var(--text); /* 文字颜色为深色 */
+        cursor: pointer;
+        padding: 0.5rem; /* 适当的内边距 */
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+        border-radius: 50%; /* 圆形按钮 */
+        transition: var(--transition); /* 添加过渡效果 */
+        width: 40px; /* 固定宽度 */
+        height: 40px; /* 固定高度 */
+        display: flex;
+        justify-content: center;
+        align-items: center; /* 使图标居中 */
+    }
+
+    .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.2); /* 鼠标悬停时轻微变色 */
+    }
+
+    .btn-edit, .btn-delete {
+        background-color: #e5e7eb; /* 浅色模式下的基本背景色 */
+        color: #f3f4f6; /* 浅色模式下的图标颜色改为浅灰色 */
+    }
+
+    .btn-edit:hover, .btn-delete:hover {
+        background-color: #d1d5db; /* 浅色模式下悬停时的背景色 */
+    }
+
+    .dark .btn-edit, .dark .btn-delete {
+        background-color: var(--secondary-hover); /* 深色模式下的背景色 */
+        color: white; /* 深色模式下的文字颜色 */
+    }
+
+    .dark .btn-edit:hover, .dark .btn-delete:hover {
+        background-color: var(--secondary-darker); /* 深色模式下悬停时的背景色 */
+    }
+
+    .section-header {
+        margin-bottom: 1.5rem; /* 为每个 section 的标题增加下边距 */
+    }
+
+    .tag-list {
+        margin-top: 0.3rem; /* 增加标签列表与标题之间的间距 */
+    }
+
+    /* 需要放大的元素 */
+    .btn-primary,
+    .btn-danger,
+    .btn-edit,
+    .btn-delete,
+    .badge,
+    .btn-import,
+    .tag-item {
+        transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover,
+    .btn-success:hover,
+    .btn-danger:hover,
+    .btn-edit:hover,
+    .btn-delete:hover,
+    .badge:hover,
+    .btn-import:hover,
+    .tag-item:hover {
+        transform: scale(1.1); /* 悬停时放大 10% */
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+    }
+    .btn-danger:hover {
+        background-color: #dc2626;
+    }
+    .btn-success {
+        background-color: #10b981;
+        color: white;
+    }
+    .btn-success:hover {
+        background-color: #059669;
+    }
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+    .button-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    .button-group div {
+        display: flex;
+        gap: 0.5rem; /* 让按钮贴近一点 */
+    }
+
+    /* 悬浮操作按钮样式 */
+    .fab {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        background-color: var(--success);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        z-index: 40;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .fab:hover {
+        transform: scale(1.1);
+        background-color: var(--success-hover);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .fab svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* 悬浮按钮提示文本 */
+    .fab-tooltip {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--text);
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .dark .fab-tooltip {
+        background-color: var(--card);
+        color: var(--text);
+    }
+
+    .fab:hover .fab-tooltip {
+        opacity: 1;
+    }
+
+    /* 添加悬浮按钮动画 */
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
         }
-
-        .form-group {
-            margin-bottom: 1rem;
+        70% {
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
         }
-
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+        100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
         }
+    }
 
-        .form-input-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .fab {
+        animation: pulse 2s infinite;
+    }
 
-        .form-input {
-            background-color: var(--background);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--text);
-            font-size: 0.875rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            transition: var(--transition);
-        }
-
-        .form-input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
-
-        .time-input {
-            width: 70px;
-        }
-
-        .icon {
-            color: var(--text-light);
-            width: 16px;
-            height: 16px;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1.5rem;
-        }
-
-        .btn {
-            align-items: center;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            display: inline-flex;
-            font-size: 0.875rem;
-            font-weight: 500;
-            gap: 0.5rem;
-            justify-content: center;
-            padding: 0.5rem 1rem;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-primary svg, .btn-danger svg {
-            stroke: white;
-        }
-
-        .btn-primary, .btn-danger {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary:hover, .btn-danger:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: var(--danger-hover);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--secondary);
-        }
-
-        .btn-icon {
-            padding: 0.25rem;
-            border-radius: 9999px;
-        }
-
-        .section {
-            margin-top: 2rem;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .section-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        .record-count {
-            color: var(--text-light);
-            font-size: 0.875rem;
-        }
-
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            border-bottom: 1px solid var(--border);
-            padding: 0.75rem 1rem;
-            text-align: left;
-        }
-
-        th {
-            background-color: var(--secondary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* 表格行悬停效果 */
-        tr {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center;
-        }
-
-        tr:hover {
-            background-color: var(--secondary);
-            cursor: pointer;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
-        }
-
-        .badge {
-            background-color: var(--primary-light);
-            border-radius: 9999px;
-            color: var(--primary);
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.25rem 0.75rem;
-            position: relative;
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .badge-tooltip {
-            background-color: var(--text);
-            border-radius: 0.25rem;
-            bottom: 125%;
-            color: white;
-            font-size: 0.75rem;
-            left: 50%;
-            opacity: 0;
-            padding: 0.25rem 0.5rem;
-            pointer-events: none;
-            position: absolute;
-            transform: translateX(-50%);
-            transition: opacity 0.2s ease-in-out;
-            white-space: nowrap;
-            z-index: 10;
-        }
-
-        .dark .badge-tooltip {
-            background-color: var(--background);
-            color: var(--text);
-        }
-
-        .badge:hover .badge-tooltip {
-            opacity: 1;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-        .btn-edit {
-            color: var(--success);
-        }
-
-        .btn-edit:hover {
-            color: var(--success-hover);
-        }
-
-        .btn-delete {
-            color: var(--danger);
-        }
-
-        .btn-delete:hover {
-            color: var(--danger-hover);
-        }
-
-        .empty-state {
-            background-color: var(--secondary);
-            border-radius: var(--radius);
-            color: var(--text-light);
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .toggle-button {
-            width: 100%;
-        }
-
-        .summary-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .summary-container.visible {
-            max-height: 2000px;
-            margin-top: 1rem;
-        }
-
-        .progress-container {
-            margin-top: 0.25rem;
-        }
-
-        .progress-bar {
-            background-color: var(--secondary);
-            border-radius: 9999px;
-            height: 0.5rem;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .progress-value {
-            background-color: var(--primary);
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .tag-item {
-            align-items: center;
-            background-color: var(--secondary);
-            border-radius: 9999px;
-            display: flex;
-            font-size: 0.875rem;
-            gap: 0.25rem;
-            padding: 0.375rem 0.75rem;
-        }
-
-        .tag-delete {
-            align-items: center;
-            background-color: transparent;
-            border: none;
-            border-radius: 9999px;
-            color: var(--danger);
-            cursor: pointer;
-            display: flex;
-            height: 16px;
-            justify-content: center;
-            padding: 0;
-            width: 16px;
-        }
-
-        .tag-delete:hover {
-            color: var(--danger-hover);
-        }
-
-        .footer {
-            color: var(--text-light);
-            font-size: 0.75rem;
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-
-        .modal {
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            height: 100vh;
-            justify-content: center;
-            left: 0;
-            position: fixed;
-            top: 0;
-            width: 100vw;
-            z-index: 50;
-        }
-
-        .modal.visible {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            max-width: 400px;
-            padding: 1.5rem;
-            width: 90%;
-        }
-
-        .modal-header {
-            margin-bottom: 1rem;
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-description {
-            color: var(--text-light);
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .summary-item {
-            margin-bottom: 1rem;
-        }
-
-        .summary-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            position: absolute;
-            right: 1.5rem;
-            top: 1.5rem;
+    @media (max-width: 640px) {
+        .card-header {
+            padding: 1rem;
         }
         
-        .theme-toggle {
-            background: none;
-            color: var(--text); /* 文字颜色为深色 */
-            cursor: pointer;
-            padding: 0.5rem; /* 适当的内边距 */
-            position: absolute;
+        .card-content {
+            padding: 1rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            min-width: 600px;
+        }
+
+        .fab {
+            bottom: 1.5rem;
             right: 1.5rem;
-            top: 1.5rem;
-            border-radius: 50%; /* 圆形按钮 */
-            transition: var(--transition); /* 添加过渡效果 */
-            width: 40px; /* 固定宽度 */
-            height: 40px; /* 固定高度 */
-            display: flex;
-            justify-content: center;
-            align-items: center; /* 使图标居中 */
-        }
-
-        .theme-toggle:hover {
-            background-color: rgba(255, 255, 255, 0.2); /* 鼠标悬停时轻微变色 */
-        }
-
-        .btn-edit, .btn-delete {
-            background-color: #e5e7eb; /* 浅色模式下的基本背景色 */
-            color: #f3f4f6; /* 浅色模式下的图标颜色改为浅灰色 */
-        }
-
-        .btn-edit:hover, .btn-delete:hover {
-            background-color: #d1d5db; /* 浅色模式下悬停时的背景色 */
-        }
-
-        .dark .btn-edit, .dark .btn-delete {
-            background-color: var(--secondary-hover); /* 深色模式下的背景色 */
-            color: white; /* 深色模式下的文字颜色 */
-        }
-
-        .dark .btn-edit:hover, .dark .btn-delete:hover {
-            background-color: var(--secondary-darker); /* 深色模式下悬停时的背景色 */
-        }
-
-        .section-header {
-            margin-bottom: 1.5rem; /* 为每个 section 的标题增加下边距 */
-        }
-
-        .tag-list {
-            margin-top: 0.3rem; /* 增加标签列表与标题之间的间距 */
-        }
-
-        /* 需要放大的元素 */
-        .btn-primary,
-        .btn-danger,
-        .btn-edit,
-        .btn-delete,
-        .badge,
-        .tag-item {
-            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        }
-
-        .btn-primary:hover,
-        .btn-success:hover,
-        .btn-danger:hover,
-        .btn-edit:hover,
-        .btn-delete:hover,
-        .badge:hover,
-        .tag-item:hover {
-            transform: scale(1.1); /* 悬停时放大 10% */
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            border: none;
-            transition: 0.2s;
-        }
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-        .btn-success {
-            background-color: #10b981;
-            color: white;
-        }
-        .btn-success:hover {
-            background-color: #059669;
-        }
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-        .button-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 1rem;
-        }
-        .button-group div {
-            display: flex;
-            gap: 0.5rem; /* 让按钮贴近一点 */
-        }
-
-        /* 悬浮操作按钮样式 */
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 50%;
-            background-color: var(--success);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            z-index: 40;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-            background-color: var(--success-hover);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .fab svg {
-            width: 1.5rem;
-            height: 1.5rem;
-        }
-
-        /* 悬浮按钮提示文本 */
-        .fab-tooltip {
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--text);
-            color: white;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .dark .fab-tooltip {
-            background-color: var(--card);
-            color: var(--text);
-        }
-
-        .fab:hover .fab-tooltip {
-            opacity: 1;
-        }
-
-        /* 添加悬浮按钮动画 */
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        .fab {
-            animation: pulse 2s infinite;
-        }
-
-        @media (max-width: 640px) {
-            .card-header {
-                padding: 1rem;
-            }
-            
-            .card-content {
-                padding: 1rem;
-            }
-            
-            .table-container {
-                overflow-x: auto;
-            }
-            
-            table {
-                min-width: 600px;
-            }
-
-            .fab {
-                bottom: 1.5rem;
-                right: 1.5rem;
-                width: 3rem;
-                height: 3rem;
-            }
-        }
-
-        /* 更新弹窗样式 */
-        .update-modal {
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            height: 100vh;
-            justify-content: center;
-            left: 0;
-            position: fixed;
-            top: 0;
-            width: 100vw;
-            z-index: 60;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .update-modal.visible {
-            display: flex;
-        }
-
-        .update-modal-content {
-            background-color: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            max-width: 500px;
-            padding: 2rem;
-            width: 90%;
-            position: relative;
-            animation: slideIn 0.4s ease-out;
-        }
-
-        .update-modal-header {
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .update-icon {
-            background-color: var(--primary-light);
-            border-radius: 50%;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             width: 3rem;
             height: 3rem;
-            flex-shrink: 0;
         }
+    }
 
-        .update-icon svg {
-            width: 1.5rem;
-            height: 1.5rem;
+    /* 更新弹窗样式 */
+    .update-modal {
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        height: 100vh;
+        justify-content: center;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+        z-index: 60;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .update-modal.visible {
+        display: flex;
+    }
+
+    .update-modal-content {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        max-width: 500px;
+        padding: 2rem;
+        width: 90%;
+        position: relative;
+        animation: slideIn 0.4s ease-out;
+    }
+
+    .update-modal-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .update-icon {
+        background-color: var(--primary-light);
+        border-radius: 50%;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        flex-shrink: 0;
+    }
+
+    .update-icon svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .update-title-container {
+        flex-grow: 1;
+    }
+
+    .update-modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .update-version {
+        color: var(--primary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .update-content {
+        margin-bottom: 1.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .update-content h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .update-content h3:first-child {
+        margin-top: 0;
+    }
+
+    .update-content ul {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .update-content li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .update-content p {
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .update-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .update-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .update-close-btn:hover {
+        background-color: var(--secondary);
+        color: var(--text);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { 
+            transform: translateY(-20px);
+            opacity: 0;
         }
-
-        .update-title-container {
-            flex-grow: 1;
+        to { 
+            transform: translateY(0);
+            opacity: 1;
         }
+    }
 
-        .update-modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
+    /* 更新内容滚动条样式 */
+    .update-content::-webkit-scrollbar {
+        width: 6px;
+    }
 
-        .update-version {
-            color: var(--primary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
+    .update-content::-webkit-scrollbar-track {
+        background: var(--secondary);
+        border-radius: 10px;
+    }
 
-        .update-content {
-            margin-bottom: 1.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-        }
+    .update-content::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
 
-        .update-content h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            margin-top: 1.5rem;
-        }
+    .update-content::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-hover);
+    }
 
-        .update-content h3:first-child {
-            margin-top: 0;
-        }
-
-        .update-content ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .update-content li {
-            margin-bottom: 0.5rem;
-            line-height: 1.5;
-        }
-
-        .update-content p {
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-
-        .update-modal-footer {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .update-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .update-close-btn:hover {
-            background-color: var(--secondary);
-            color: var(--text);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { 
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to { 
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* 更新内容滚动条样式 */
-        .update-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .update-content::-webkit-scrollbar-track {
-            background: var(--secondary);
-            border-radius: 10px;
-        }
-
-        .update-content::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        .update-content::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-hover);
-        }
-
-        /* 多标签输入样式 */
-        .tags-input-container {
+    /* 多标签输入样式 */
+    .tags-input-container {
             padding: 0.5rem 0.75rem;
             width: 100%;
             display: flex;
@@ -909,1369 +915,1763 @@
             min-height: 38px;
         }
 
-        .tags-input-container:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
+    .tags-input-container:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
 
-        .tag-badge {
-            display: flex;
-            align-items: center;
-            background-color: var(--primary-light);
-            color: var(--primary);
-            border-radius: 9999px;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            gap: 0.25rem;
-        }
+    .tag-badge {
+        display: flex;
+        align-items: center;
+        background-color: var(--primary-light);
+        color: var(--primary);
+        border-radius: 9999px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        gap: 0.25rem;
+    }
 
-        .dark .tag-badge {
-            background-color: var(--primary-light);
-            color: white;
-        }
+    .dark .tag-badge {
+        background-color: var(--primary-light);
+        color: white;
+    }
 
-        .tag-badge-delete {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
-        }
+    .tag-badge-delete {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+    }
 
-        .tag-badge-delete:hover {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
+    .tag-badge-delete:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
 
-        .dark .tag-badge-delete {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+    .dark .tag-badge-delete {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 
-        .dark .tag-badge-delete:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
+    .dark .tag-badge-delete:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
 
-        .tags-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: var(--text);
-            font-size: 0.875rem;
-            min-width: 120px;
-            padding: 0.25rem;
-        }
+    .tags-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 0.875rem;
+        min-width: 120px;
+        padding: 0.25rem;
+    }
 
-        .tag-icon-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.5rem;
-        }
-    </style>
+    .tag-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+    }
+
+    /* 导出选项模态框样式 */
+    .export-options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .export-option {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .export-option:hover {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .export-option.selected {
+        border-color: var(--primary);
+        background-color: var(--primary-light);
+    }
+
+    .dark .export-option.selected {
+        background-color: var(--primary-light);
+        border-color: var(--primary-hover);
+    }
+
+    .export-option-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        background-color: var(--primary-light);
+        border-radius: 50%;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .dark .export-option-icon {
+        background-color: var(--primary-light);
+    }
+
+    .export-option-icon svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--primary);
+    }
+
+    .dark .export-option-icon svg {
+        color: white;
+    }
+
+    .export-option-content {
+        flex: 1;
+    }
+
+    .export-option-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .export-option-description {
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+
+    /* 导入链接模态框样式 */
+    .import-link-container {
+        margin-top: 1rem;
+    }
+
+    .import-link-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+        background-color: var(--background);
+        color: var(--text);
+    }
+
+    .import-link-input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    /* 复制成功提示样式 */
+    .copy-success {
+        position: fixed;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--success);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        pointer-events: none;
+    }
+
+    .copy-success.visible {
+        opacity: 1;
+    }
+
+    /* 导入按钮样式 */
+    .btn-import {
+        background-color: var(--success);
+        color: white;
+    }
+
+    .btn-import:hover {
+        background-color: var(--import-hover);
+    }
+</style>
 </head>
 <body>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VJVTS65GF5"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VJVTS65GF5"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
 
-    gtag('config', 'G-VJVTS65GF5');
-    </script>
-    
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h1 class="card-title">
-                    时间记录表
-                </h1>
-                <button id="themeToggle" class="theme-toggle">
-                    <svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                </button>
-                <div class="date-picker">
-                    <input type="date" id="datePicker" class="date-input">
-                </div>
+gtag('config', 'G-VJVTS65GF5');
+</script>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">
+                时间记录表
+            </h1>
+            <button id="themeToggle" class="theme-toggle">
+                <svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            <div class="date-picker">
+                <input type="date" id="datePicker" class="date-input">
             </div>
-            <div class="card-content">
-                <form id="timeForm">
-                    <div class="form-grid">
-                        <div>
-                            <div class="form-group">
-                                <label for="startHour" class="form-label">开始时间</label>
-                                <div class="form-input-group">
-                                    <input type="number" id="startHour" class="form-input time-input" min="0" max="23" placeholder="小时">
-                                    <span>:</span>
-                                    <input type="number" id="startMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="endHour" class="form-label">结束时间</label>
-                                <div class="form-input-group">
-                                    <input type="number" id="endHour" class="form-input time-input" min="0" max="23" placeholder="小时">
-                                    <span>:</span>
-                                    <input type="number" id="endMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
-                                </div>
+        </div>
+        <div class="card-content">
+            <form id="timeForm">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label for="startHour" class="form-label">开始时间</label>
+                            <div class="form-input-group">
+                                <input type="number" id="startHour" class="form-input time-input" min="0" max="23" placeholder="小时">
+                                <span>:</span>
+                                <input type="number" id="startMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
                             </div>
                         </div>
-                        <div>
-                            <div class="form-group">
-                                <label for="activity" class="form-label">事件</label>
-                                <div class="form-input-group">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                    </svg>
-                                    <input type="text" id="activity" class="form-input" placeholder="输入事件名称">
-                                </div>
+                        <div class="form-group">
+                            <label for="endHour" class="form-label">结束时间</label>
+                            <div class="form-input-group">
+                                <input type="number" id="endHour" class="form-input time-input" min="0" max="23" placeholder="小时">
+                                <span>:</span>
+                                <input type="number" id="endMinute" class="form-input time-input" min="0" max="59" placeholder="分钟">
                             </div>
-                            <div class="form-group">
-                                <label for="tagInput" class="form-label">标签</label>
-                                <div class="form-input-group">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                                    </svg>
-                                    <div class="tags-input-container" id="tagsContainer">
-                                        <input type="text" id="tagInput" class="tags-input" placeholder="输入标签后按回车添加" list="tagOptions">
-                                        <datalist id="tagOptions"></datalist>
-                                    </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label for="activity" class="form-label">事件</label>
+                            <div class="form-input-group">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                                <input type="text" id="activity" class="form-input" placeholder="输入事件名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tagInput" class="form-label">标签</label>
+                            <div class="form-input-group">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                </svg>
+                                <div class="tags-input-container" id="tagsContainer">
+                                    <input type="text" id="tagInput" class="tags-input" placeholder="输入标签后按回车添加" list="tagOptions">
+                                    <datalist id="tagOptions"></datalist>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="button-group">
+                </div>
+                <div class="button-group">
+                    <div style="display: flex; gap: 0.5rem;">
                         <button type="button" id="clearButton" class="btn btn-danger">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                             </svg>
                             清除记录
                         </button>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button type="submit" class="btn btn-primary">
-                                <!-- 方案二：使用保存图标 -->
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                                    <path d="M17 21v-8H7v8M7 3v5h8"/>
-                                </svg>
-                                提交
-                            </button>
-                        </div>   
-                    </div>
-                </form>
-
-                <div class="section">
-                    <div class="section-header">
-                        <h3 class="section-title">事件记录</h3>
-                        <div id="recordCount" class="record-count">0 条记录</div>
-                    </div>
-                    
-                    <div id="recordsContainer" class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>时间段</th>
-                                    <th>事件</th>
-                                    <th>标签</th>
-                                    <th style="text-align: right;">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recordTable"></tbody>
-                        </table>
-                    </div>
-                    <div id="emptyRecords" class="empty-state">
-                        当前日期没有记录
-                    </div>
-                </div>
-
-                <div class="section">
-                    <button id="toggleSummaryButton" class="btn btn-outline toggle-button">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="20" x2="18" y2="10"></line>
-                            <line x1="12" y1="20" x2="12" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="14"></line>
-                        </svg>
-                        显示时间分配统计表
-                        <svg class="icon" id="summaryChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
-                    
-                    <div id="summaryContainer" class="summary-container">
-                        <div class="section">
-                            <h3 class="section-title">按活动统计</h3>
-                            <div id="activitySummary" class="summary-content"></div>
-                            <div id="emptyActivitySummary" class="empty-state">
-                                没有活动数据
-                            </div>
-                        </div>
-                        
-                        <div class="section">
-                            <h3 class="section-title">按标签统计</h3>
-                            <div id="tagSummary" class="summary-content"></div>
-                            <div id="emptyTagSummary" class="empty-state">
-                                没有标签数据
-                            </div>
-                            <p style="font-size: 0.75rem; color: #6b7280; text-align: center;">标签百分比总值会大于100%，因为有多标签的包含关系</p>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h3 class="section-title">标签管理</h3>
-                    <div id="tagList" class="tag-list"></div>
-                    <div id="emptyTags" class="empty-state">
-                        没有标签
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            Copyright © Sam Zhang v2.10
-        </div>
-    </div>
-
-    <!-- 悬浮导出按钮 -->
-    <button id="exportButton" class="fab">
-        <span class="fab-tooltip">导出记录表</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-    </button>
-
-    <!-- 删除确认模态框 -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">确认删除</h3>
-                <p id="deleteModalDescription" class="modal-description">确定要删除这条记录吗？</p>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelDeleteButton" class="btn btn-outline">取消</button>
-                <button id="confirmDeleteButton" class="btn btn-danger">确定</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 删除标签确认模态框 -->
-    <div id="deleteTagModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">确认删除标签</h3>
-                <p id="deleteTagModalDescription" class="modal-description">确定要删除标签吗？所有使用此标签的记录将被重置为"其他"。</p>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelDeleteTagButton" class="btn btn-outline">取消</button>
-                <button id="confirmDeleteTagButton" class="btn btn-danger">确定</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 更新弹窗 -->
-    <div id="updateModal" class="update-modal">
-        <div class="update-modal-content">
-            <button id="updateCloseButton" class="update-close-btn">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-            <div class="update-modal-header">
-                <div class="update-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <!-- 铃铛主体 -->
-                        <path d="M12 2.5c-4.2 0-7 2.5-7 7.5 0 8-2.5 10-2.5 10h19s-2.5-2-2.5-10c0-5-2.8-7.5-7-7.5Z"/>
-                        <!-- 通知点 -->
-                        <circle cx="19" cy="4.5" r="3.2" fill="currentColor"/>
-                        <!-- 底部装饰 -->
-                        <path d="M15 21H9a2.5 2.5 0 1 0 6 0Z" fill="currentColor"/>
-                    </svg>
-                </div>
-                <div class="update-title-container">
-                    <h2 class="update-modal-title">欢迎使用新版本</h2>
-                    <div class="update-version" id="updateVersion">v2.10</div>
-                </div>
-            </div>
-            <div class="update-content" id="updateContent">
-                <!-- 更新内容将通过JavaScript动态添加 -->
-            </div>
-            <div class="update-modal-footer">
-                <button id="updateConfirmButton" class="btn btn-primary">我知道了</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // 初始化 localbase
-        const db = new Localbase('timeTracker');
-        
-        // 应用版本信息
-        const APP_VERSION = '2.10';
-        const APP_UPDATE_INFO = {
-            version: 'v2.10',
-            content: `
-                <h3>新功能</h3>
-                <ul>
-                    <li>支持多标签功能：现在可以为一个事件添加多个标签</li>
-                    <li>标签输入优化：输入标签后按回车键即可添加，更加便捷</li>
-                </ul>
-                <h3>改进</h3>
-                <ul>
-                    <li>标签显示样式优化，更加美观</li>
-                    <li>标签统计功能增强，支持多标签统计</li>
-                    <li>修复标签管理中标签重复显示的问题</li>
-                    <li>修复添加后删除的标签仍会显示在标签管理中的问题</li>
-                </ul>
-                <h3>修复</h3>
-                <ul>
-                    <li>修复了一些已知问题</li>
-                </ul>
-            `
-        };
-        
-        // 全局变量
-        let records = [];
-        let tags = new Set();
-        let currentIndexToDelete = null;
-        let currentTagToDelete = null;
-        let deleteType = 'record'; // 'record' 或 'all'
-        let currentTags = []; // 当前选择的标签数组
-        let tempTags = new Set(); // 临时标签集合，用于存储当前表单中添加的标签
-
-        // DOM 元素
-        const datePicker = document.getElementById('datePicker');
-        const startHour = document.getElementById('startHour');
-        const startMinute = document.getElementById('startMinute');
-        const endHour = document.getElementById('endHour');
-        const endMinute = document.getElementById('endMinute');
-        const activity = document.getElementById('activity');
-        const tagInput = document.getElementById('tagInput');
-        const tagsContainer = document.getElementById('tagsContainer');
-        const tagOptions = document.getElementById('tagOptions');
-        const recordTable = document.getElementById('recordTable');
-        const recordCount = document.getElementById('recordCount');
-        const recordsContainer = document.getElementById('recordsContainer');
-        const emptyRecords = document.getElementById('emptyRecords');
-        const tagList = document.getElementById('tagList');
-        const emptyTags = document.getElementById('emptyTags');
-        const timeForm = document.getElementById('timeForm');
-        const clearButton = document.getElementById('clearButton');
-        const toggleSummaryButton = document.getElementById('toggleSummaryButton');
-        const summaryContainer = document.getElementById('summaryContainer');
-        const summaryChevron = document.getElementById('summaryChevron');
-        const activitySummary = document.getElementById('activitySummary');
-        const tagSummary = document.getElementById('tagSummary');
-        const emptyActivitySummary = document.getElementById('emptyActivitySummary');
-        const emptyTagSummary = document.getElementById('emptyTagSummary');
-        const deleteModal = document.getElementById('deleteModal');
-        const deleteModalDescription = document.getElementById('deleteModalDescription');
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
-        const deleteTagModal = document.getElementById('deleteTagModal');
-        const deleteTagModalDescription = document.getElementById('deleteTagModalDescription');
-        const confirmDeleteTagButton = document.getElementById('confirmDeleteTagButton');
-        const cancelDeleteTagButton = document.getElementById('cancelDeleteTagButton');
-        const themeToggle = document.getElementById('themeToggle');
-        const exportButton = document.getElementById('exportButton');
-        const updateModal = document.getElementById('updateModal');
-        const updateVersion = document.getElementById('updateVersion');
-        const updateContent = document.getElementById('updateContent');
-        const updateCloseButton = document.getElementById('updateCloseButton');
-        const updateConfirmButton = document.getElementById('updateConfirmButton');
-
-        // 初始化日期选择器
-        function initializeDatePicker() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const formattedDate = `${year}-${month}-${day}`;
-            datePicker.value = formattedDate;
-        }
-
-        // 保存数据到 localbase
-        async function saveData() {
-            try {
-                // 保存记录
-                await db.collection('records').set(records);
-                
-                // 保存标签
-                await db.collection('tags').doc('tagList').set({
-                    tags: [...tags]
-                });
-                
-                // 同时保存到 localStorage 作为备份
-                localStorage.setItem('records', JSON.stringify(records));
-                localStorage.setItem('tags', JSON.stringify([...tags]));
-            } catch (error) {
-                console.error('保存数据失败:', error);
-                // 如果 localbase 保存失败，仍然保存到 localStorage
-                localStorage.setItem('records', JSON.stringify(records));
-                localStorage.setItem('tags', JSON.stringify([...tags]));
-            }
-        }
-
-        // 从 localbase 加载数据
-        async function loadData() {
-            try {
-                // 加载记录
-                const savedRecords = await db.collection('records').get();
-                if (savedRecords && savedRecords.length > 0) {
-                    records = savedRecords;
-                    
-                    // 兼容旧版本数据，将单标签转换为标签数组
-                    records.forEach(record => {
-                        if (!Array.isArray(record.tags)) {
-                            record.tags = record.tag ? [record.tag] : [];
-                            delete record.tag; // 删除旧的标签字段
-                        }
-                    });
-                } else {
-                    // 如果 localbase 中没有数据，尝试从 localStorage 加载
-                    const localRecords = localStorage.getItem('records');
-                    if (localRecords) {
-                        records = JSON.parse(localRecords);
-                        
-                        // 兼容旧版本数据，将单标签转换为标签数组
-                        records.forEach(record => {
-                            if (!Array.isArray(record.tags)) {
-                                record.tags = record.tag ? [record.tag] : [];
-                                delete record.tag; // 删除旧的标签字段
-                            }
-                        });
-                        
-                        // 将数据保存到 localbase
-                        await db.collection('records').set(records);
-                    }
-                }
-                
-                // 加载标签
-                const savedTagsDoc = await db.collection('tags').doc('tagList').get();
-                if (savedTagsDoc && savedTagsDoc.tags) {
-                    tags = new Set(savedTagsDoc.tags);
-                } else {
-                    // 如果 localbase 中没有标签数据，尝试从 localStorage 加载
-                    const localTags = localStorage.getItem('tags');
-                    if (localTags) {
-                        const tagArray = JSON.parse(localTags);
-                        tags = new Set(tagArray);
-                        // 将标签保存到 localbase
-                        await db.collection('tags').doc('tagList').set({
-                            tags: tagArray
-                        });
-                    }
-                }
-                
-                // 更新标签选项
-                updateTagOptions();
-                
-                // 更新界面
-                updateRecordsTable();
-                updateTagList();
-                calculateTimeDistribution();
-            } catch (error) {
-                console.error('加载数据失败:', error);
-                // 如果 localbase 加载失败，尝试从 localStorage 加载
-                const savedRecords = localStorage.getItem('records');
-                const savedTags = localStorage.getItem('tags');
-                
-                if (savedRecords) {
-                    records = JSON.parse(savedRecords);
-                    
-                    // 兼容旧版本数据，将单标签转换为标签数组
-                    records.forEach(record => {
-                        if (!Array.isArray(record.tags)) {
-                            record.tags = record.tag ? [record.tag] : [];
-                            delete record.tag; // 删除旧的标签字段
-                        }
-                    });
-                }
-                
-                if (savedTags) {
-                    const tagArray = JSON.parse(savedTags);
-                    tags = new Set(tagArray);
-                    
-                    // 更新标签选项
-                    updateTagOptions();
-                }
-                
-                updateRecordsTable();
-                updateTagList();
-                calculateTimeDistribution();
-            }
-        }
-
-        // 更新标签选项
-        function updateTagOptions() {
-            tagOptions.innerHTML = '';
-            [...tags].forEach(tagName => {
-                const option = document.createElement('option');
-                option.value = tagName;
-                tagOptions.appendChild(option);
-            });
-        }
-
-        // 格式化时间
-        function formatTime(time) {
-            return time < 10 ? `0${time}` : time;
-        }
-
-        // 验证时间输入
-        function validateTime(hour, minute) {
-            if (hour < 0 || hour > 23) {
-                alert('小时必须在 0 到 23 之间！');
-                return false;
-            }
-            if (minute < 0 || minute > 59) {
-                alert('分钟必须在 0 到 59 之间！');
-                return false;
-            }
-            return true;
-        }
-
-        // 验证事件输入
-        function validateActivity(activityText) {
-            if (activityText.trim() === '') {
-                alert('事件不能为空');
-                return false;
-            }
-            return true;
-        }
-
-        // 更新记录表格
-        function updateRecordsTable() {
-            const selectedDate = datePicker.value;
-            const filteredRecords = records.filter(record => record.date === selectedDate);
-            
-            recordCount.textContent = `${filteredRecords.length} 条记录`;
-            
-            if (filteredRecords.length === 0) {
-                recordsContainer.style.display = 'none';
-                emptyRecords.style.display = 'block';
-                return;
-            }
-            
-            recordsContainer.style.display = 'block';
-            emptyRecords.style.display = 'none';
-            
-            recordTable.innerHTML = '';
-            
-            filteredRecords.forEach((record, index) => {
-                const row = document.createElement('tr');
-                
-                // 找到记录在原始数组中的索引
-                const originalIndex = records.findIndex(r => 
-                    r.date === record.date && 
-                    r.time === record.time && 
-                    r.activity === record.activity && 
-                    JSON.stringify(r.tags) === JSON.stringify(record.tags)
-                );
-                
-                // 创建标签HTML
-                let tagsHtml = '';
-                if (record.tags && record.tags.length > 0) {
-                    record.tags.forEach(tag => {
-                        tagsHtml += `
-                            <span class="badge">
-                                ${tag || '其他'}
-                                <span class="badge-tooltip">${calculateTagPercentage(tag)}%</span>
-                            </span>
-                        `;
-                    });
-                } else {
-                    tagsHtml = `
-                        <span class="badge">
-                            其他
-                            <span class="badge-tooltip">${calculateTagPercentage('其他')}%</span>
-                        </span>
-                    `;
-                }
-                
-                row.innerHTML = `
-                    <td>${record.time}</td>
-                    <td>${record.activity}</td>
-                    <td>${tagsHtml}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button type="button" class="btn btn-icon btn-edit" data-index="${originalIndex}">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </button>
-                            <button type="button" class="btn btn-icon btn-delete" data-index="${originalIndex}">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                recordTable.appendChild(row);
-            });
-            
-            // 添加事件监听器
-            document.querySelectorAll('.btn-edit').forEach(button => {
-                button.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    modifyRecord(index);
-                });
-            });
-            
-            document.querySelectorAll('.btn-delete').forEach(button => {
-                button.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    showDeleteConfirmation('record', index);
-                });
-            });
-        }
-
-        // 获取所有使用中的标签
-        function getUsedTags() {
-            const usedTags = new Set();
-            records.forEach(record => {
-                if (record.tags && record.tags.length > 0) {
-                    record.tags.forEach(tag => {
-                        if (tag) usedTags.add(tag);
-                    });
-                }
-            });
-            return usedTags;
-        }
-
-        // 更新标签列表 - 修复重复标签问题和未使用标签问题
-        function updateTagList() {
-            // 获取所有使用中的标签
-            const usedTags = getUsedTags();
-            
-            if (usedTags.size === 0) {
-                tagList.style.display = 'none';
-                emptyTags.style.display = 'block';
-                return;
-            }
-            
-            tagList.style.display = 'flex';
-            emptyTags.style.display = 'none';
-            
-            tagList.innerHTML = '';
-            
-            // 使用数组去重，确保每个标签只显示一次，并且只显示使用中的标签
-            const uniqueTags = [...usedTags];
-            
-            uniqueTags.forEach(tagName => {
-                const tagItem = document.createElement('div');
-                tagItem.className = 'tag-item';
-                tagItem.innerHTML = `
-                    ${tagName}
-                    <button type="button" class="tag-delete" data-tag="${tagName}">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                `;
-                
-                tagList.appendChild(tagItem);
-            });
-            
-            // 添加事件监听器
-            document.querySelectorAll('.tag-delete').forEach(button => {
-                button.addEventListener('click', function() {
-                    const tagName = this.getAttribute('data-tag');
-                    showDeleteTagConfirmation(tagName);
-                });
-            });
-        }
-
-        // 计算标签百分比
-        function calculateTagPercentage(tagName) {
-            const selectedDate = datePicker.value;
-            const filteredRecords = records.filter(record => record.date === selectedDate);
-            
-            let tagTime = 0;
-            let totalTime = 0;
-            
-            filteredRecords.forEach(record => {
-                const [startTime, endTime] = record.time.split(' - ');
-                const [startHour, startMinute] = startTime.split(':').map(Number);
-                const [endHour, endMinute] = endTime.split(':').map(Number);
-                
-                const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
-                totalTime += duration;
-                
-                if (record.tags && record.tags.includes(tagName)) {
-                    tagTime += duration;
-                }
-            });
-            
-            return totalTime ? ((tagTime / totalTime) * 100).toFixed(2) : '0.00';
-        }
-
-        // 修改记录
-        function modifyRecord(index) {
-            const record = records[index];
-            const [startTime, endTime] = record.time.split(' - ');
-            const [startHourVal, startMinuteVal] = startTime.split(':');
-            const [endHourVal, endMinuteVal] = endTime.split(':');
-            
-            startHour.value = startHourVal;
-            startMinute.value = startMinuteVal;
-            endHour.value = endHourVal;
-            endMinute.value = endMinuteVal;
-            activity.value = record.activity;
-            
-            // 清空当前标签
-            currentTags = [];
-            renderTags();
-            
-            // 添加记录中的标签
-            if (record.tags && record.tags.length > 0) {
-                record.tags.forEach(tag => {
-                    if (tag) {
-                        addTag(tag);
-                    }
-                });
-            }
-            
-            // 删除记录
-            records.splice(index, 1);
-            saveData();
-            updateRecordsTable();
-            calculateTimeDistribution();
-        }
-
-        // 删除记录
-        function deleteRecord(index) {
-            records.splice(index, 1);
-            saveData();
-            updateRecordsTable();
-            calculateTimeDistribution();
-            updateTagList(); // 更新标签列表，移除未使用的标签
-        }
-
-        // 删除标签
-        function deleteTag(tagName) {
-            tags.delete(tagName);
-            
-            // 更新记录中的标签
-            records.forEach(record => {
-                if (record.tags && record.tags.includes(tagName)) {
-                    record.tags = record.tags.filter(tag => tag !== tagName);
-                    if (record.tags.length === 0) {
-                        record.tags = ['其他'];
-                    }
-                }
-            });
-            
-            saveData();
-            updateTagList();
-            updateRecordsTable();
-            calculateTimeDistribution();
-            
-            // 更新标签选项
-            updateTagOptions();
-        }
-
-        // 清除记录
-        function clearRecords() {
-            const selectedDate = datePicker.value;
-            records = records.filter(record => record.date !== selectedDate);
-            saveData();
-            updateRecordsTable();
-            calculateTimeDistribution();
-            updateTagList(); // 更新标签列表，移除未使用的标签
-        }
-
-        // 导出功能
-        exportButton.addEventListener('click', function () {
-            const targetElement = document.querySelector('.container');  // 仅截取主要内容
-            const summaryContainer = document.getElementById('summaryContainer'); // 统计表
-            const toggleSummaryButton = document.getElementById('toggleSummaryButton'); // 统计按钮
-
-            // 如果时间分配统计表当前是隐藏的，就先展开
-            let wasHidden = !summaryContainer.classList.contains('visible');
-            if (wasHidden) {
-                summaryContainer.classList.add('visible');
-                toggleSummaryButton.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"></line>
-                        <line x1="12" y1="20" x2="12" y2="4"></line>
-                        <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    隐藏时间分配统计表
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                `;
-            }
-
-            // 添加导出动画效果
-            this.classList.add('exporting');
-            
-            // 等待 300ms，确保动画完成后再截图
-            setTimeout(() => {
-                html2canvas(targetElement, {
-                    useCORS: true,
-                    scale: window.devicePixelRatio
-                }).then(canvas => {
-                    let link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');  
-                    link.download = `时间记录表_${new Date().toISOString().split('T')[0]}.png`;
-                    link.click();
-
-                    // 截图后恢复时间分配统计表的原始状态（如果它原来是隐藏的，则关闭）
-                    if (wasHidden) {
-                        summaryContainer.classList.remove('visible');
-                        toggleSummaryButton.innerHTML = `
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                        <!-- 导入图标和文本 -->
+                        <button type="button" id="importButton" class="btn btn-import">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
-                            显示时间分配统计表
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 12 15 18 9"></polyline>
+                            导入记录
+                        </button>
+
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <path d="M17 21v-8H7v8M7 3v5h8"/>
                             </svg>
-                        `;
-                    }
-                    
-                    // 移除导出动画效果
-                    this.classList.remove('exporting');
-                }).catch(error => console.error('截图失败:', error));
-            }, 300);
-        });
+                            提交
+                        </button>
+                    </div>   
+                </div>
+            </form>
 
-        // 计算时间分配
-        function calculateTimeDistribution() {
-            const selectedDate = datePicker.value;
-            const filteredRecords = records.filter(record => record.date === selectedDate);
-            
-            const activitySummaryData = {};
-            const tagSummaryData = {};
-            let totalTime = 0;
-            
-            filteredRecords.forEach(record => {
-                const activity = record.activity || '未分类';
-                const [startTime, endTime] = record.time.split(' - ');
-                const [startHour, startMinute] = startTime.split(':').map(Number);
-                const [endHour, endMinute] = endTime.split(':').map(Number);
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">事件记录</h3>
+                    <div id="recordCount" class="record-count">0 条记录</div>
+                </div>
                 
-                const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
-                totalTime += duration;
-                
-                activitySummaryData[activity] = (activitySummaryData[activity] || 0) + duration;
-                
-                // 处理多标签
-                if (record.tags && record.tags.length > 0) {
-                    record.tags.forEach(tag => {
-                        const tagName = tag || '其他';
-                        tagSummaryData[tagName] = (tagSummaryData[tagName] || 0) + duration;
-                    });
-                } else {
-                    tagSummaryData['其他'] = (tagSummaryData['其他'] || 0) + duration;
-                }
-            });
-            
-            // 活动时间分配
-            const sortedActivities = Object.entries(activitySummaryData)
-                .sort(([, timeA], [, timeB]) => timeB - timeA);
-            
-            if (sortedActivities.length === 0) {
-                activitySummary.style.display = 'none';
-                emptyActivitySummary.style.display = 'block';
-            } else {
-                activitySummary.style.display = 'block';
-                emptyActivitySummary.style.display = 'none';
-                
-                activitySummary.innerHTML = '';
-                
-                sortedActivities.forEach(([activity, time]) => {
-                    const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
-                    
-                    const summaryItem = document.createElement('div');
-                    summaryItem.className = 'summary-item';
-                    summaryItem.innerHTML = `
-                        <div class="summary-header">
-                            <span>${activity}</span>
-                            <span>${time} 分钟 (${percentage}%)</span>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: ${percentage}%"></div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    activitySummary.appendChild(summaryItem);
-                });
-            }
-            
-            // 标签时间分配
-            const sortedTags = Object.entries(tagSummaryData)
-                .sort(([, timeA], [, timeB]) => timeB - timeA);
-            
-            if (sortedTags.length === 0) {
-                tagSummary.style.display = 'none';
-                emptyTagSummary.style.display = 'block';
-            } else {
-                tagSummary.style.display = 'block';
-                emptyTagSummary.style.display = 'none';
-                
-                tagSummary.innerHTML = '';
-                
-                sortedTags.forEach(([tag, time]) => {
-                    const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
-                    
-                    const summaryItem = document.createElement('div');
-                    summaryItem.className = 'summary-item';
-                    summaryItem.innerHTML = `
-                        <div class="summary-header">
-                            <span>${tag}</span>
-                            <span>${time} 分钟 (${percentage}%)</span>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: ${percentage}%"></div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    tagSummary.appendChild(summaryItem);
-                });
-            }
-        }
+                <div id="recordsContainer" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>时间段</th>
+                                <th>事件</th>
+                                <th>标签</th>
+                                <th style="text-align: right;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordTable"></tbody>
+                    </table>
+                </div>
+                <div id="emptyRecords" class="empty-state">
+                    当前日期没有记录
+                </div>
+            </div>
 
-        // 显示删除确认模态框
-        function showDeleteConfirmation(type, index) {
-            deleteType = type;
-            
-            if (type === 'record') {
-                currentIndexToDelete = index;
-                deleteModalDescription.textContent = '确定要删除这条记录吗？';
-            } else {
-                deleteModalDescription.textContent = '确定要清除当前日期的所有记录吗？';
-            }
-            
-            deleteModal.classList.add('visible');
-        }
-
-        // 显示删除标签确认模态框
-        function showDeleteTagConfirmation(tagName) {
-            currentTagToDelete = tagName;
-            deleteTagModalDescription.textContent = `确定要删除标签 "${tagName}" 吗？所有使用此标签的记录将被重置为"其他"。`;
-            deleteTagModal.classList.add('visible');
-        }
-
-        // 切换主题
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-            
-            // 保存主题设置
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('darkMode', isDark);
-            
-            // 更新图标
-            themeToggle.innerHTML = isDark 
-                ? '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
-                : '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-        }
-
-        // 加载保存的主题
-        function loadTheme() {
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-            }
-        }
-
-        // 检查应用版本并显示更新弹窗
-        async function checkAppVersion() {
-            try {
-                // 从 localbase 获取上次使用的版本
-                const versionData = await db.collection('appInfo').doc('version').get();
-                const lastVersion = versionData ? versionData.version : null;
-                
-                // 如果没有版本记录或版本不同，显示更新弹窗
-                if (!lastVersion || lastVersion !== APP_VERSION) {
-                    // 更新版本信息
-                    updateVersion.textContent = APP_UPDATE_INFO.version;
-                    updateContent.innerHTML = APP_UPDATE_INFO.content;
-                    
-                    // 显示更新弹窗
-                    updateModal.classList.add('visible');
-                    
-                    // 保存新版本信息
-                    await db.collection('appInfo').doc('version').set({
-                        version: APP_VERSION,
-                        updateTime: new Date().toISOString()
-                    });
-                }
-            } catch (error) {
-                console.error('检查版本失败:', error);
-                // 如果 localbase 操作失败，尝试使用 localStorage
-                const lastVersion = localStorage.getItem('appVersion');
-                
-                if (!lastVersion || lastVersion !== APP_VERSION) {
-                    // 更新版本信息
-                    updateVersion.textContent = APP_UPDATE_INFO.version;
-                    updateContent.innerHTML = APP_UPDATE_INFO.content;
-                    
-                    // 显示更新弹窗
-                    updateModal.classList.add('visible');
-                    
-                    // 保存新版本信息到 localStorage
-                    localStorage.setItem('appVersion', APP_VERSION);
-                }
-            }
-        }
-
-        // 关闭更新弹窗
-        function closeUpdateModal() {
-            updateModal.classList.remove('visible');
-        }
-
-        // 添加标签
-        function addTag(tagText) {
-            if (!tagText || tagText.trim() === '') return;
-            
-            tagText = tagText.trim();
-            
-            // 检查标签是否已存在
-            if (currentTags.includes(tagText)) return;
-            
-            // 添加到当前标签数组
-            currentTags.push(tagText);
-            
-            // 添加到临时标签集合，但不立即添加到全局标签集合
-            tempTags.add(tagText);
-            
-            // 更新标签选项
-            updateTagOptions();
-            
-            // 渲染标签
-            renderTags();
-            
-            // 清空输入框
-            tagInput.value = '';
-        }
-
-        // 删除当前标签
-        function removeTag(index) {
-            // 从当前标签数组中移除
-            const removedTag = currentTags[index];
-            currentTags.splice(index, 1);
-            
-            // 从临时标签集合中移除
-            tempTags.delete(removedTag);
-            
-            // 渲染标签
-            renderTags();
-        }
-
-        // 渲染当前标签
-        function renderTags() {
-            // 清除现有标签，但保留输入框
-            const badges = tagsContainer.querySelectorAll('.tag-badge');
-            badges.forEach(badge => badge.remove());
-            
-            // 添加新标签
-            currentTags.forEach((tag, index) => {
-                const tagBadge = document.createElement('div');
-                tagBadge.className = 'tag-badge';
-                tagBadge.innerHTML = `
-                    ${tag}
-                    <span class="tag-badge-delete" data-index="${index}">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </span>
-                `;
-                
-                // 将标签插入到输入框之前
-                tagsContainer.insertBefore(tagBadge, tagInput);
-            });
-            
-            // 添加删除事件监听器
-            document.querySelectorAll('.tag-badge-delete').forEach(button => {
-                button.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    removeTag(index);
-                });
-            });
-        }
-
-        // 事件监听器
-        timeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const startHourVal = parseInt(startHour.value);
-            const startMinuteVal = parseInt(startMinute.value);
-            const endHourVal = parseInt(endHour.value);
-            const endMinuteVal = parseInt(endMinute.value);
-            const activityVal = activity.value;
-            const selectedDate = datePicker.value;
-            
-            if (!validateTime(startHourVal, startMinuteVal) || !validateTime(endHourVal, endMinuteVal)) {
-                return;
-            }
-            
-            if (!validateActivity(activityVal)) {
-                return;
-            }
-            
-            if (startHourVal > endHourVal || (startHourVal === endHourVal && startMinuteVal > endMinuteVal)) {
-                alert('开始时间不能晚于结束时间！');
-                return;
-            }
-            
-            const recordTime = `${formatTime(startHourVal)}:${formatTime(startMinuteVal)} - ${formatTime(endHourVal)}:${formatTime(endMinuteVal)}`;
-            
-            // 使用当前标签数组，如果为空则使用"其他"
-            const recordTags = currentTags.length > 0 ? [...currentTags] : ['其他'];
-            
-            const newRecord = {
-                date: selectedDate,
-                time: recordTime,
-                activity: activityVal,
-                tags: recordTags
-            };
-            
-            records.push(newRecord);
-            
-            // 按时间排序
-            records.sort((a, b) => {
-                if (a.date !== b.date) {
-                    return a.date.localeCompare(b.date);
-                }
-                
-                const aStart = a.time.split(' - ')[0];
-                const bStart = b.time.split(' - ')[0];
-                
-                const [aHour, aMinute] = aStart.split(':').map(Number);
-                const [bHour, bMinute] = bStart.split(':').map(Number);
-                
-                return (aHour - bHour) || (aMinute - bMinute);
-            });
-            
-            // 保存所有实际使用的标签到全局标签集合
-            recordTags.forEach(tag => {
-                if (tag) {
-                    tags.add(tag);
-                }
-            });
-            
-            // 清空临时标签集合
-            tempTags.clear();
-            
-            // 更新标签选项
-            updateTagOptions();
-            
-            saveData();
-            updateRecordsTable();
-            updateTagList();
-            calculateTimeDistribution();
-            
-            // 重置表单
-            timeForm.reset();
-            currentTags = [];
-            renderTags();
-        });
-
-        // 监听开始时间的输入，自动填充结束时间
-        startHour.addEventListener('input', function () {
-            if (startHour.value) {
-                endHour.value = startHour.value.padStart(2, '0'); // 补零
-            }
-        });
-
-        startMinute.addEventListener('input', function () {
-            if (startMinute.value) {
-                endMinute.value = startMinute.value.padStart(2, '0'); // 补零
-            }
-        });
-
-        // 标签输入框回车事件
-        tagInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // 阻止表单提交
-                addTag(this.value);
-            }
-        });
-
-        // 日期选择器变更
-        datePicker.addEventListener('change', function() {
-            updateRecordsTable();
-            calculateTimeDistribution();
-        });
-
-        // 清除按钮
-        clearButton.addEventListener('click', function() {
-            showDeleteConfirmation('all');
-        });
-
-        // 确认删除
-        confirmDeleteButton.addEventListener('click', function() {
-            if (deleteType === 'record') {
-                deleteRecord(currentIndexToDelete);
-            } else {
-                clearRecords();
-            }
-            
-            deleteModal.classList.remove('visible');
-        });
-
-        // 取消删除
-        cancelDeleteButton.addEventListener('click', function() {
-            deleteModal.classList.remove('visible');
-        });
-
-        // 确认删除标签
-        confirmDeleteTagButton.addEventListener('click', function() {
-            deleteTag(currentTagToDelete);
-            deleteTagModal.classList.remove('visible');
-        });
-
-        // 取消删除标签
-        cancelDeleteTagButton.addEventListener('click', function() {
-            deleteTagModal.classList.remove('visible');
-        });
-
-        // 切换时间分配统计表
-        toggleSummaryButton.addEventListener('click', function() {
-            summaryContainer.classList.toggle('visible');
-            
-            if (summaryContainer.classList.contains('visible')) {
-                toggleSummaryButton.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"></line>
-                        <line x1="12" y1="20" x2="12" y2="4"></line>
-                        <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    隐藏时间分配统计表
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                `;
-            } else {
-                toggleSummaryButton.innerHTML = `
+            <div class="section">
+                <button id="toggleSummaryButton" class="btn btn-outline toggle-button">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="20" x2="18" y2="10"></line>
                         <line x1="12" y1="20" x2="12" y2="4"></line>
                         <line x1="6" y1="20" x2="6" y2="14"></line>
                     </svg>
                     显示时间分配统计表
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="icon" id="summaryChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
+                </button>
+                
+                <div id="summaryContainer" class="summary-container">
+                    <div class="section">
+                        <h3 class="section-title">按活动统计</h3>
+                        <div id="activitySummary" class="summary-content"></div>
+                        <div id="emptyActivitySummary" class="empty-state">
+                            没有活动数据
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3 class="section-title">按标签统计</h3>
+                        <div id="tagSummary" class="summary-content"></div>
+                        <div id="emptyTagSummary" class="empty-state">
+                            没有标签数据
+                        </div>
+                        <p style="font-size: 0.75rem; color: #6b7280; text-align: center;">标签百分比总值会大于100%，因为有多标签的包含关系</p>
+                    </div>                    
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">标签管理</h3>
+                <div id="tagList" class="tag-list"></div>
+                <div id="emptyTags" class="empty-state">
+                    没有标签
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Copyright © Sam Zhang v2.11
+    </div>
+</div>
+
+<!-- 悬浮导出按钮 -->
+
+<button id="exportButton" class="fab">
+    <span class="fab-tooltip">导出记录表</span>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+    </svg>
+</button>
+
+<!-- 删除确认模态框 -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">确认删除</h3>
+            <p id="deleteModalDescription" class="modal-description">确定要删除这条记录吗？</p>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteButton" class="btn btn-outline">取消</button>
+            <button id="confirmDeleteButton" class="btn btn-danger">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除标签确认模态框 -->
+<div id="deleteTagModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">确认删除标签</h3>
+            <p id="deleteTagModalDescription" class="modal-description">确定要删除标签吗？所有使用此标签的记录将被重置为"其他"。</p>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteTagButton" class="btn btn-outline">取消</button>
+            <button id="confirmDeleteTagButton" class="btn btn-danger">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 导出选项模态框 -->
+<div id="exportOptionsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">选择导出方式</h3>
+            <p class="modal-description">请选择您想要的导出方式</p>
+        </div>
+        <div class="export-options-container">
+            <div class="export-option" data-type="image">
+                <div class="export-option-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </div>
+                <div class="export-option-content">
+                    <div class="export-option-title">导出为图片</div>
+                    <div class="export-option-description">将当前记录表导出为PNG图片</div>
+                </div>
+            </div>
+            <div class="export-option" data-type="link">
+                <div class="export-option-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                </div>
+                <div class="export-option-content">
+                    <div class="export-option-title">导出为链接</div>
+                    <div class="export-option-description">生成包含所有记录的链接，可在其他设备上导入</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelExportButton" class="btn btn-outline">取消</button>
+            <button id="confirmExportButton" class="btn btn-primary">确认</button>
+        </div>
+    </div>
+</div>
+
+<!-- 导入链接模态框 -->
+<div id="importLinkModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">导入记录</h3>
+            <p class="modal-description">请粘贴之前导出的链接</p>
+        </div>
+        <div class="import-link-container">
+            <input type="text" id="importLinkInput" class="import-link-input" placeholder="粘贴导出链接...">
+        </div>
+        <div class="modal-footer">
+            <button id="cancelImportButton" class="btn btn-outline">取消</button>
+            <button id="confirmImportButton" class="btn btn-primary">导入</button>
+        </div>
+    </div>
+</div>
+
+<!-- 复制成功提示 -->
+<div id="copySuccess" class="copy-success">链接已复制到剪贴板</div>
+
+<!-- 更新弹窗 -->
+<div id="updateModal" class="update-modal">
+    <div class="update-modal-content">
+        <button id="updateCloseButton" class="update-close-btn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="update-modal-header">
+            <div class="update-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- 铃铛主体 -->
+                    <path d="M12 2.5c-4.2 0-7 2.5-7 7.5 0 8-2.5 10-2.5 10h19s-2.5-2-2.5-10c0-5-2.8-7.5-7-7.5Z"/>
+                    <!-- 通知点 -->
+                    <circle cx="19" cy="4.5" r="3.2" fill="currentColor"/>
+                    <!-- 底部装饰 -->
+                    <path d="M15 21H9a2.5 2.5 0 1 0 6 0Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="update-title-container">
+                <h2 class="update-modal-title">欢迎使用新版本</h2>
+                <div class="update-version" id="updateVersion">v2.11</div>
+            </div>
+        </div>
+        <div class="update-content" id="updateContent">
+            <!-- 更新内容将通过JavaScript动态添加 -->
+        </div>
+        <div class="update-modal-footer">
+            <button id="updateConfirmButton" class="btn btn-primary">我知道了</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化 localbase
+    const db = new Localbase('timeTracker');
+    
+    // 应用版本信息
+    const APP_VERSION = '2.11';
+    const APP_UPDATE_INFO = {
+        version: 'v2.11',
+        content: `
+            <h3>新功能</h3>
+            <ul>
+                <li>新增导出选项：现在可以选择导出为图片或链接</li>
+                <li>支持跨设备导入：通过导出的链接可以在其他设备上导入记录</li>
+            </ul>
+            <h3>改进</h3>
+            <ul>
+                <li>无</li>
+            </ul>
+            <h3>修复</h3>
+            <ul>
+                <li>修复了一些已知问题</li>
+            </ul>
+        `
+    };
+    
+    // 全局变量
+    let records = [];
+    let tags = new Set();
+    let currentIndexToDelete = null;
+    let currentTagToDelete = null;
+    let deleteType = 'record'; // 'record' 或 'all'
+    let currentTags = []; // 当前选择的标签数组
+    let tempTags = new Set(); // 临时标签集合，用于存储当前表单中添加的标签
+    let selectedExportType = null; // 选择的导出类型
+
+    // DOM 元素
+    const datePicker = document.getElementById('datePicker');
+    const startHour = document.getElementById('startHour');
+    const startMinute = document.getElementById('startMinute');
+    const endHour = document.getElementById('endHour');
+    const endMinute = document.getElementById('endMinute');
+    const activity = document.getElementById('activity');
+    const tagInput = document.getElementById('tagInput');
+    const tagsContainer = document.getElementById('tagsContainer');
+    const tagOptions = document.getElementById('tagOptions');
+    const recordTable = document.getElementById('recordTable');
+    const recordCount = document.getElementById('recordCount');
+    const recordsContainer = document.getElementById('recordsContainer');
+    const emptyRecords = document.getElementById('emptyRecords');
+    const tagList = document.getElementById('tagList');
+    const emptyTags = document.getElementById('emptyTags');
+    const timeForm = document.getElementById('timeForm');
+    const clearButton = document.getElementById('clearButton');
+    const importButton = document.getElementById('importButton');
+    const toggleSummaryButton = document.getElementById('toggleSummaryButton');
+    const summaryContainer = document.getElementById('summaryContainer');
+    const summaryChevron = document.getElementById('summaryChevron');
+    const activitySummary = document.getElementById('activitySummary');
+    const tagSummary = document.getElementById('tagSummary');
+    const emptyActivitySummary = document.getElementById('emptyActivitySummary');
+    const emptyTagSummary = document.getElementById('emptyTagSummary');
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteModalDescription = document.getElementById('deleteModalDescription');
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+    const deleteTagModal = document.getElementById('deleteTagModal');
+    const deleteTagModalDescription = document.getElementById('deleteTagModalDescription');
+    const confirmDeleteTagButton = document.getElementById('confirmDeleteTagButton');
+    const cancelDeleteTagButton = document.getElementById('cancelDeleteTagButton');
+    const themeToggle = document.getElementById('themeToggle');
+    const exportButton = document.getElementById('exportButton');
+    const updateModal = document.getElementById('updateModal');
+    const updateVersion = document.getElementById('updateVersion');
+    const updateContent = document.getElementById('updateContent');
+    const updateCloseButton = document.getElementById('updateCloseButton');
+    const updateConfirmButton = document.getElementById('updateConfirmButton');
+    const exportOptionsModal = document.getElementById('exportOptionsModal');
+    const exportOptions = document.querySelectorAll('.export-option');
+    const confirmExportButton = document.getElementById('confirmExportButton');
+    const cancelExportButton = document.getElementById('cancelExportButton');
+    const importLinkModal = document.getElementById('importLinkModal');
+    const importLinkInput = document.getElementById('importLinkInput');
+    const confirmImportButton = document.getElementById('confirmImportButton');
+    const cancelImportButton = document.getElementById('cancelImportButton');
+    const copySuccess = document.getElementById('copySuccess');
+
+    // 初始化日期选择器
+    function initializeDatePicker() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        datePicker.value = formattedDate;
+    }
+
+    // 保存数据到 localbase
+    async function saveData() {
+        try {
+            // 保存记录
+            await db.collection('records').set(records);
+            
+            // 保存标签
+            await db.collection('tags').doc('tagList').set({
+                tags: [...tags]
+            });
+            
+            // 同时保存到 localStorage 作为备份
+            localStorage.setItem('records', JSON.stringify(records));
+            localStorage.setItem('tags', JSON.stringify([...tags]));
+        } catch (error) {
+            console.error('保存数据失败:', error);
+            // 如果 localbase 保存失败，仍然保存到 localStorage
+            localStorage.setItem('records', JSON.stringify(records));
+            localStorage.setItem('tags', JSON.stringify([...tags]));
+        }
+    }
+
+    // 从 localbase 加载数据
+    async function loadData() {
+        try {
+            // 加载记录
+            const savedRecords = await db.collection('records').get();
+            if (savedRecords && savedRecords.length > 0) {
+                records = savedRecords;
+                
+                // 兼容旧版本数据，将单标签转换为标签数组
+                records.forEach(record => {
+                    if (!Array.isArray(record.tags)) {
+                        record.tags = record.tag ? [record.tag] : [];
+                        delete record.tag; // 删除旧的标签字段
+                    }
+                });
+            } else {
+                // 如果 localbase 中没有数据，尝试从 localStorage 加载
+                const localRecords = localStorage.getItem('records');
+                if (localRecords) {
+                    records = JSON.parse(localRecords);
+                    
+                    // 兼容旧版本数据，将单标签转换为标签数组
+                    records.forEach(record => {
+                        if (!Array.isArray(record.tags)) {
+                            record.tags = record.tag ? [record.tag] : [];
+                            delete record.tag; // 删除旧的标签字段
+                        }
+                    });
+                    
+                    // 将数据保存到 localbase
+                    await db.collection('records').set(records);
+                }
+            }
+            
+            // 加载标签
+            const savedTagsDoc = await db.collection('tags').doc('tagList').get();
+            if (savedTagsDoc && savedTagsDoc.tags) {
+                tags = new Set(savedTagsDoc.tags);
+            } else {
+                // 如果 localbase 中没有标签数据，尝试从 localStorage 加载
+                const localTags = localStorage.getItem('tags');
+                if (localTags) {
+                    const tagArray = JSON.parse(localTags);
+                    tags = new Set(tagArray);
+                    // 将标签保存到 localbase
+                    await db.collection('tags').doc('tagList').set({
+                        tags: tagArray
+                    });
+                }
+            }
+            
+            // 更新标签选项
+            updateTagOptions();
+            
+            // 更新界面
+            updateRecordsTable();
+            updateTagList();
+            calculateTimeDistribution();
+        } catch (error) {
+            console.error('加载数据失败:', error);
+            // 如果 localbase 加载失败，尝试从 localStorage 加载
+            const savedRecords = localStorage.getItem('records');
+            const savedTags = localStorage.getItem('tags');
+            
+            if (savedRecords) {
+                records = JSON.parse(savedRecords);
+                
+                // 兼容旧版本数据，将单标签转换为标签数组
+                records.forEach(record => {
+                    if (!Array.isArray(record.tags)) {
+                        record.tags = record.tag ? [record.tag] : [];
+                        delete record.tag; // 删除旧的标签字段
+                    }
+                });
+            }
+            
+            if (savedTags) {
+                const tagArray = JSON.parse(savedTags);
+                tags = new Set(tagArray);
+                
+                // 更新标签选项
+                updateTagOptions();
+            }
+            
+            updateRecordsTable();
+            updateTagList();
+            calculateTimeDistribution();
+        }
+    }
+
+    // 更新标签选项
+    function updateTagOptions() {
+        tagOptions.innerHTML = '';
+        [...tags].forEach(tagName => {
+            const option = document.createElement('option');
+            option.value = tagName;
+            tagOptions.appendChild(option);
+        });
+    }
+
+    // 格式化时间
+    function formatTime(time) {
+        return time < 10 ? `0${time}` : time;
+    }
+
+    // 验证时间输入
+    function validateTime(hour, minute) {
+        if (hour < 0 || hour > 23) {
+            alert('小时必须在 0 到 23 之间！');
+            return false;
+        }
+        if (minute < 0 || minute > 59) {
+            alert('分钟必须在 0 到 59 之间！');
+            return false;
+        }
+        return true;
+    }
+
+    // 验证事件输入
+    function validateActivity(activityText) {
+        if (activityText.trim() === '') {
+            alert('事件不能为空');
+            return false;
+        }
+        return true;
+    }
+
+    // 更新记录表格
+    function updateRecordsTable() {
+        const selectedDate = datePicker.value;
+        const filteredRecords = records.filter(record => record.date === selectedDate);
+        
+        recordCount.textContent = `${filteredRecords.length} 条记录`;
+        
+        if (filteredRecords.length === 0) {
+            recordsContainer.style.display = 'none';
+            emptyRecords.style.display = 'block';
+            return;
+        }
+        
+        recordsContainer.style.display = 'block';
+        emptyRecords.style.display = 'none';
+        
+        recordTable.innerHTML = '';
+        
+        filteredRecords.forEach((record, index) => {
+            const row = document.createElement('tr');
+            
+            // 找到记录在原始数组中的索引
+            const originalIndex = records.findIndex(r => 
+                r.date === record.date && 
+                r.time === record.time && 
+                r.activity === record.activity && 
+                JSON.stringify(r.tags) === JSON.stringify(record.tags)
+            );
+            
+            // 创建标签HTML
+            let tagsHtml = '';
+            if (record.tags && record.tags.length > 0) {
+                record.tags.forEach(tag => {
+                    tagsHtml += `
+                        <span class="badge">
+                            ${tag || '其他'}
+                            <span class="badge-tooltip">${calculateTagPercentage(tag)}%</span>
+                        </span>
+                    `;
+                });
+            } else {
+                tagsHtml = `
+                    <span class="badge">
+                        其他
+                        <span class="badge-tooltip">${calculateTagPercentage('其他')}%</span>
+                    </span>
                 `;
             }
-        });
-
-        // 主题切换
-        themeToggle.addEventListener('click', toggleTheme);
-
-        // 更新弹窗关闭按钮
-        updateCloseButton.addEventListener('click', closeUpdateModal);
-        updateConfirmButton.addEventListener('click', closeUpdateModal);
-
-        // 自动匹配系统主题
-        function applySystemTheme() {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.classList.toggle('dark', prefersDark);
-            localStorage.setItem('darkMode', prefersDark);
-            updateThemeIcon(prefersDark);
-        }
-
-        // 更新主题图标
-        function updateThemeIcon(isDark) {
-            themeToggle.innerHTML = isDark
-                ? '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
-                : '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-        }
-
-        // 监听系统主题变化
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
-
-        // 获取所有时间输入框
-        const timeInputs = [startHour, startMinute, endHour, endMinute];
-
-        // 自动跳转焦点函数
-        function handleAutoTab(currentInput, nextInput) {
-            if (currentInput.value.length >= 2) {
-                nextInput.focus();
-                nextInput.select(); // 自动选中内容方便修改
-            }
             
-            // 处理删除操作（当清空内容时返回前一个输入框）
-            if (currentInput.value === '' && event.inputType === 'deleteContentBackward') {
-                const prevIndex = timeInputs.indexOf(currentInput) - 1;
-                if (prevIndex >= 0) {
-                    timeInputs[prevIndex].focus();
-                    timeInputs[prevIndex].select();
+            row.innerHTML = `
+                <td>${record.time}</td>
+                <td>${record.activity}</td>
+                <td>${tagsHtml}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-icon btn-edit" data-index="${originalIndex}">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-delete" data-index="${originalIndex}">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            recordTable.appendChild(row);
+        });
+        
+        // 添加事件监听器
+        document.querySelectorAll('.btn-edit').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                modifyRecord(index);
+            });
+        });
+        
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                showDeleteConfirmation('record', index);
+            });
+        });
+    }
+
+    // 获取所有使用中的标签
+    function getUsedTags() {
+        const usedTags = new Set();
+        records.forEach(record => {
+            if (record.tags && record.tags.length > 0) {
+                record.tags.forEach(tag => {
+                    if (tag) usedTags.add(tag);
+                });
+            }
+        });
+        return usedTags;
+    }
+
+    // 更新标签列表 - 修复重复标签问题和未使用标签问题
+    function updateTagList() {
+        // 获取所有使用中的标签
+        const usedTags = getUsedTags();
+        
+        if (usedTags.size === 0) {
+            tagList.style.display = 'none';
+            emptyTags.style.display = 'block';
+            return;
+        }
+        
+        tagList.style.display = 'flex';
+        emptyTags.style.display = 'none';
+        
+        tagList.innerHTML = '';
+        
+        // 使用数组去重，确保每个标签只显示一次，并且只显示使用中的标签
+        const uniqueTags = [...usedTags];
+        
+        uniqueTags.forEach(tagName => {
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.innerHTML = `
+                ${tagName}
+                <button type="button" class="tag-delete" data-tag="${tagName}">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            `;
+            
+            tagList.appendChild(tagItem);
+        });
+        
+        // 添加事件监听器
+        document.querySelectorAll('.tag-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const tagName = this.getAttribute('data-tag');
+                showDeleteTagConfirmation(tagName);
+            });
+        });
+    }
+
+    // 计算标签百分比
+    function calculateTagPercentage(tagName) {
+        const selectedDate = datePicker.value;
+        const filteredRecords = records.filter(record => record.date === selectedDate);
+        
+        let tagTime = 0;
+        let totalTime = 0;
+        
+        filteredRecords.forEach(record => {
+            const [startTime, endTime] = record.time.split(' - ');
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+            
+            const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
+            totalTime += duration;
+            
+            if (record.tags && record.tags.includes(tagName)) {
+                tagTime += duration;
+            }
+        });
+        
+        return totalTime ? ((tagTime / totalTime) * 100).toFixed(2) : '0.00';
+    }
+
+    // 修改记录
+    function modifyRecord(index) {
+        const record = records[index];
+        const [startTime, endTime] = record.time.split(' - ');
+        const [startHourVal, startMinuteVal] = startTime.split(':');
+        const [endHourVal, endMinuteVal] = endTime.split(':');
+        
+        startHour.value = startHourVal;
+        startMinute.value = startMinuteVal;
+        endHour.value = endHourVal;
+        endMinute.value = endMinuteVal;
+        activity.value = record.activity;
+        
+        // 清空当前标签
+        currentTags = [];
+        renderTags();
+        
+        // 添加记录中的标签
+        if (record.tags && record.tags.length > 0) {
+            record.tags.forEach(tag => {
+                if (tag) {
+                    addTag(tag);
+                }
+            });
+        }
+        
+        // 删除记录
+        records.splice(index, 1);
+        saveData();
+        updateRecordsTable();
+        calculateTimeDistribution();
+    }
+
+    // 删除记录
+    function deleteRecord(index) {
+        records.splice(index, 1);
+        saveData();
+        updateRecordsTable();
+        calculateTimeDistribution();
+        updateTagList(); // 更新标签列表，移除未使用的标签
+    }
+
+    // 删除标签
+    function deleteTag(tagName) {
+        tags.delete(tagName);
+        
+        // 更新记录中的标签
+        records.forEach(record => {
+            if (record.tags && record.tags.includes(tagName)) {
+                record.tags = record.tags.filter(tag => tag !== tagName);
+                if (record.tags.length === 0) {
+                    record.tags = ['其他'];
                 }
             }
+        });
+        
+        saveData();
+        updateTagList();
+        updateRecordsTable();
+        calculateTimeDistribution();
+        
+        // 更新标签选项
+        updateTagOptions();
+    }
+
+    // 清除记录
+    function clearRecords() {
+        const selectedDate = datePicker.value;
+        records = records.filter(record => record.date !== selectedDate);
+        saveData();
+        updateRecordsTable();
+        calculateTimeDistribution();
+        updateTagList(); // 更新标签列表，移除未使用的标签
+    }
+
+    // 导出功能 - 显示导出选项模态框
+    exportButton.addEventListener('click', function() {
+        // 重置选择状态
+        selectedExportType = null;
+        exportOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        // 显示导出选项模态框
+        exportOptionsModal.classList.add('visible');
+    });
+
+    // 选择导出选项
+    exportOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // 移除所有选项的选中状态
+            exportOptions.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 添加当前选项的选中状态
+            this.classList.add('selected');
+            
+            // 保存选择的导出类型
+            selectedExportType = this.getAttribute('data-type');
+        });
+    });
+
+    // 确认导出
+    confirmExportButton.addEventListener('click', function() {
+        if (!selectedExportType) {
+            alert('请选择导出方式');
+            return;
+        }
+        
+        // 关闭导出选项模态框
+        exportOptionsModal.classList.remove('visible');
+        
+        if (selectedExportType === 'image') {
+            // 导出为图片
+            exportAsImage();
+        } else if (selectedExportType === 'link') {
+            // 导出为链接
+            exportAsLink();
+        }
+    });
+
+    // 取消导出
+    cancelExportButton.addEventListener('click', function() {
+        exportOptionsModal.classList.remove('visible');
+    });
+
+    // 导出为图片
+    function exportAsImage() {
+        const targetElement = document.querySelector('.container');  // 仅截取主要内容
+        const summaryContainer = document.getElementById('summaryContainer'); // 统计表
+        const toggleSummaryButton = document.getElementById('toggleSummaryButton'); // 统计按钮
+
+        // 如果时间分配统计表当前是隐藏的，就先展开
+        let wasHidden = !summaryContainer.classList.contains('visible');
+        if (wasHidden) {
+            summaryContainer.classList.add('visible');
+            toggleSummaryButton.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                隐藏时间分配统计表
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+            `;
         }
 
-        // 为每个输入框添加事件监听
-        timeInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                // 自动补零（输入1会自动变成01）
-                if (e.target.value.length === 1 && e.target.value > 5 && e.target === startMinute) {
-                    e.target.value = '0' + e.target.value;
+        // 添加导出动画效果
+        exportButton.classList.add('exporting');
+        
+        // 等待 300ms，确保动画完成后再截图
+        setTimeout(() => {
+            html2canvas(targetElement, {
+                useCORS: true,
+                scale: window.devicePixelRatio
+            }).then(canvas => {
+                let link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');  
+                link.download = `时间记录表_${new Date().toISOString().split('T')[0]}.png`;
+                link.click();
+
+                // 截图后恢复时间分配统计表的原始状态（如果它原来是隐藏的，则关闭）
+                if (wasHidden) {
+                    summaryContainer.classList.remove('visible');
+                    toggleSummaryButton.innerHTML = `
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        显示时间分配统计表
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    `;
                 }
                 
-                // 自动跳转逻辑
-                if (index < 3) { // 最后一个输入框不需要跳转
+                // 移除导出动画效果
+                exportButton.classList.remove('exporting');
+            }).catch(error => console.error('截图失败:', error));
+        }, 300);
+    }
+
+    // 导出为链接
+    function exportAsLink() {
+        // 创建要导出的数据对象
+        const exportData = {
+            records: records,
+            tags: [...tags],
+            version: APP_VERSION,
+            exportDate: new Date().toISOString()
+        };
+        
+        // 将数据转换为 JSON 字符串并进行 Base64 编码
+        const jsonData = JSON.stringify(exportData);
+        const encodedData = btoa(encodeURIComponent(jsonData));
+        
+        // 创建导出链接
+        const exportLink = `${window.location.origin}${window.location.pathname}?import=${encodedData}`;
+        
+        // 复制链接到剪贴板
+        navigator.clipboard.writeText(exportLink)
+            .then(() => {
+                // 显示复制成功提示
+                copySuccess.classList.add('visible');
+                setTimeout(() => {
+                    copySuccess.classList.remove('visible');
+                }, 3000);
+            })
+            .catch(err => {
+                console.error('复制链接失败:', err);
+                alert('复制链接失败，请手动复制');
+            });
+    }
+
+    // 检查URL中是否有导入参数
+    function checkImportParam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const importParam = urlParams.get('import');
+        
+        if (importParam) {
+            try {
+                // 解码导入数据
+                const decodedData = decodeURIComponent(atob(importParam));
+                const importData = JSON.parse(decodedData);
+                
+                // 显示导入确认
+                if (confirm(`是否导入来自 ${new Date(importData.exportDate).toLocaleString()} 的数据？共有 ${importData.records.length} 条记录和 ${importData.tags.length} 个标签。`)) {
+                    // 导入记录和标签
+                    records = importData.records;
+                    tags = new Set(importData.tags);
+                    
+                    // 保存导入的数据
+                    saveData();
+                    
+                    // 更新界面
+                    updateTagOptions();
+                    updateRecordsTable();
+                    updateTagList();
+                    calculateTimeDistribution();
+                    
+                    // 清除URL中的导入参数
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } catch (error) {
+                console.error('导入数据失败:', error);
+                alert('导入数据失败，请检查链接是否正确');
+            }
+        }
+    }
+
+    // 显示导入链接模态框
+    function showImportLinkModal() {
+        importLinkInput.value = '';
+        importLinkModal.classList.add('visible');
+    }
+
+    // 导入链接
+    confirmImportButton.addEventListener('click', function() {
+        const importLink = importLinkInput.value.trim();
+        
+        if (!importLink) {
+            alert('请输入导入链接');
+            return;
+        }
+        
+        try {
+            // 从链接中提取导入参数
+            const url = new URL(importLink);
+            const importParam = url.searchParams.get('import');
+            
+            if (!importParam) {
+                throw new Error('无效的导入链接');
+            }
+            
+            // 解码导入数据
+            const decodedData = decodeURIComponent(atob(importParam));
+            const importData = JSON.parse(decodedData);
+            
+            // 导入记录和标签
+            records = importData.records;
+            tags = new Set(importData.tags);
+            
+            // 保存导入的数据
+            saveData();
+            
+            // 更新界面
+            updateTagOptions();
+            updateRecordsTable();
+            updateTagList();
+            calculateTimeDistribution();
+            
+            // 关闭导入链接模态框
+            importLinkModal.classList.remove('visible');
+            
+            // 显示导入成功提示
+            alert(`导入成功！共导入 ${importData.records.length} 条记录和 ${importData.tags.length} 个标签。`);
+        } catch (error) {
+            console.error('导入数据失败:', error);
+            alert('导入数据失败，请检查链接是否正确');
+        }
+    });
+
+    // 取消导入
+    cancelImportButton.addEventListener('click', function() {
+        importLinkModal.classList.remove('visible');
+    });
+
+    // 计算时间分配
+    function calculateTimeDistribution() {
+        const selectedDate = datePicker.value;
+        const filteredRecords = records.filter(record => record.date === selectedDate);
+        
+        const activitySummaryData = {};
+        const tagSummaryData = {};
+        let totalTime = 0;
+        
+        filteredRecords.forEach(record => {
+            const activity = record.activity || '未分类';
+            const [startTime, endTime] = record.time.split(' - ');
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+            
+            const duration = (endHour - startHour) * 60 + (endMinute - startMinute);
+            totalTime += duration;
+            
+            activitySummaryData[activity] = (activitySummaryData[activity] || 0) + duration;
+            
+            // 处理多标签
+            if (record.tags && record.tags.length > 0) {
+                record.tags.forEach(tag => {
+                    const tagName = tag || '其他';
+                    tagSummaryData[tagName] = (tagSummaryData[tagName] || 0) + duration;
+                });
+            } else {
+                tagSummaryData['其他'] = (tagSummaryData['其他'] || 0) + duration;
+            }
+        });
+        
+        // 活动时间分配
+        const sortedActivities = Object.entries(activitySummaryData)
+            .sort(([, timeA], [, timeB]) => timeB - timeA);
+        
+        if (sortedActivities.length === 0) {
+            activitySummary.style.display = 'none';
+            emptyActivitySummary.style.display = 'block';
+        } else {
+            activitySummary.style.display = 'block';
+            emptyActivitySummary.style.display = 'none';
+            
+            activitySummary.innerHTML = '';
+            
+            sortedActivities.forEach(([activity, time]) => {
+                const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
+                
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <div class="summary-header">
+                        <span>${activity}</span>
+                        <span>${time} 分钟 (${percentage}%)</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                activitySummary.appendChild(summaryItem);
+            });
+        }
+        
+        // 标签时间分配
+        const sortedTags = Object.entries(tagSummaryData)
+            .sort(([, timeA], [, timeB]) => timeB - timeA);
+        
+        if (sortedTags.length === 0) {
+            tagSummary.style.display = 'none';
+            emptyTagSummary.style.display = 'block';
+        } else {
+            tagSummary.style.display = 'block';
+            emptyTagSummary.style.display = 'none';
+            
+            tagSummary.innerHTML = '';
+            
+            sortedTags.forEach(([tag, time]) => {
+                const percentage = totalTime ? ((time / totalTime) * 100).toFixed(2) : '0.00';
+                
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <div class="summary-header">
+                        <span>${tag}</span>
+                        <span>${time} 分钟 (${percentage}%)</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                tagSummary.appendChild(summaryItem);
+            });
+        }
+    }
+
+    // 显示删除确认模态框
+    function showDeleteConfirmation(type, index) {
+        deleteType = type;
+        
+        if (type === 'record') {
+            currentIndexToDelete = index;
+            deleteModalDescription.textContent = '确定要删除这条记录吗？';
+        } else {
+            deleteModalDescription.textContent = '确定要清除当前日期的所有记录吗？';
+        }
+        
+        deleteModal.classList.add('visible');
+    }
+
+    // 显示删除标签确认模态框
+    function showDeleteTagConfirmation(tagName) {
+        currentTagToDelete = tagName;
+        deleteTagModalDescription.textContent = `确定要删除标签 "${tagName}" 吗？所有使用此标签的记录将被重置为"其他"。`;
+        deleteTagModal.classList.add('visible');
+    }
+
+    // 切换主题
+    function toggleTheme() {
+        document.documentElement.classList.toggle('dark');
+        
+        // 保存主题设置
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('darkMode', isDark);
+        
+        // 更新图标
+        themeToggle.innerHTML = isDark 
+            ? '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+            : '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+
+    // 加载保存的主题
+    function loadTheme() {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            themeToggle.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+        }
+    }
+
+    // 检查应用版本并显示更新弹窗
+    async function checkAppVersion() {
+        try {
+            // 从 localbase 获取上次使用的版本
+            const versionData = await db.collection('appInfo').doc('version').get();
+            const lastVersion = versionData ? versionData.version : null;
+            
+            // 如果没有版本记录或版本不同，显示更新弹窗
+            if (!lastVersion || lastVersion !== APP_VERSION) {
+                // 更新版本信息
+                updateVersion.textContent = APP_UPDATE_INFO.version;
+                updateContent.innerHTML = APP_UPDATE_INFO.content;
+                
+                // 显示更新弹窗
+                updateModal.classList.add('visible');
+                
+                // 保存新版本信息
+                await db.collection('appInfo').doc('version').set({
+                    version: APP_VERSION,
+                    updateTime: new Date().toISOString()
+                });
+            }
+        } catch (error) {
+            console.error('检查版本失败:', error);
+            // 如果 localbase 操作失败，尝试使用 localStorage
+            const lastVersion = localStorage.getItem('appVersion');
+            
+            if (!lastVersion || lastVersion !== APP_VERSION) {
+                // 更新版本信息
+                updateVersion.textContent = APP_UPDATE_INFO.version;
+                updateContent.innerHTML = APP_UPDATE_INFO.content;
+                
+                // 显示更新弹窗
+                updateModal.classList.add('visible');
+                
+                // 保存新版本信息到 localStorage
+                localStorage.setItem('appVersion', APP_VERSION);
+            }
+        }
+    }
+
+    // 关闭更新弹窗
+    function closeUpdateModal() {
+        updateModal.classList.remove('visible');
+    }
+
+    // 添加标签
+    function addTag(tagText) {
+        if (!tagText || tagText.trim() === '') return;
+        
+        tagText = tagText.trim();
+        
+        // 检查标签是否已存在
+        if (currentTags.includes(tagText)) return;
+        
+        // 添加到当前标签数组
+        currentTags.push(tagText);
+        
+        // 添加到临时标签集合，但不立即添加到全局标签集合
+        tempTags.add(tagText);
+        
+        // 更新标签选项
+        updateTagOptions();
+        
+        // 渲染标签
+        renderTags();
+        
+        // 清空输入框
+        tagInput.value = '';
+    }
+
+    // 删除当前标签
+    function removeTag(index) {
+        // 从当前标签数组中移除
+        const removedTag = currentTags[index];
+        currentTags.splice(index, 1);
+        
+        // 从临时标签集合中移除
+        tempTags.delete(removedTag);
+        
+        //   1);
+        
+        // 从临时标签集合中移除
+        tempTags.delete(removedTag);
+        
+        // 渲染标签
+        renderTags();
+    }
+
+    // 渲染当前标签
+    function renderTags() {
+        // 清除现有标签，但保留输入框
+        const badges = tagsContainer.querySelectorAll('.tag-badge');
+        badges.forEach(badge => badge.remove());
+        
+        // 添加新标签
+        currentTags.forEach((tag, index) => {
+            const tagBadge = document.createElement('div');
+            tagBadge.className = 'tag-badge';
+            tagBadge.innerHTML = `
+                ${tag}
+                <span class="tag-badge-delete" data-index="${index}">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </span>
+            `;
+            
+            // 将标签插入到输入框之前
+            tagsContainer.insertBefore(tagBadge, tagInput);
+        });
+        
+        // 添加删除事件监听器
+        document.querySelectorAll('.tag-badge-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                removeTag(index);
+            });
+        });
+    }
+
+    // 事件监听器
+    timeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const startHourVal = parseInt(startHour.value);
+        const startMinuteVal = parseInt(startMinute.value);
+        const endHourVal = parseInt(endHour.value);
+        const endMinuteVal = parseInt(endMinute.value);
+        const activityVal = activity.value;
+        const selectedDate = datePicker.value;
+        
+        if (!validateTime(startHourVal, startMinuteVal) || !validateTime(endHourVal, endMinuteVal)) {
+            return;
+        }
+        
+        if (!validateActivity(activityVal)) {
+            return;
+        }
+        
+        if (startHourVal > endHourVal || (startHourVal === endHourVal && startMinuteVal > endMinuteVal)) {
+            alert('开始时间不能晚于结束时间！');
+            return;
+        }
+        
+        const recordTime = `${formatTime(startHourVal)}:${formatTime(startMinuteVal)} - ${formatTime(endHourVal)}:${formatTime(endMinuteVal)}`;
+        
+        // 使用当前标签数组，如果为空则使用"其他"
+        const recordTags = currentTags.length > 0 ? [...currentTags] : ['其他'];
+        
+        const newRecord = {
+            date: selectedDate,
+            time: recordTime,
+            activity: activityVal,
+            tags: recordTags
+        };
+        
+        records.push(newRecord);
+        
+        // 按时间排序
+        records.sort((a, b) => {
+            if (a.date !== b.date) {
+                return a.date.localeCompare(b.date);
+            }
+            
+            const aStart = a.time.split(' - ')[0];
+            const bStart = b.time.split(' - ')[0];
+            
+            const [aHour, aMinute] = aStart.split(':').map(Number);
+            const [bHour, bMinute] = bStart.split(':').map(Number);
+            
+            return (aHour - bHour) || (aMinute - bMinute);
+        });
+        
+        // 保存所有实际使用的标签到全局标签集合
+        recordTags.forEach(tag => {
+            if (tag) {
+                tags.add(tag);
+            }
+        });
+        
+        // 清空临时标签集合
+        tempTags.clear();
+        
+        // 更新标签选项
+        updateTagOptions();
+        
+        saveData();
+        updateRecordsTable();
+        updateTagList();
+        calculateTimeDistribution();
+        
+        // 重置表单
+        timeForm.reset();
+        currentTags = [];
+        renderTags();
+    });
+
+    // 监听开始时间的输入，自动填充结束时间
+    startHour.addEventListener('input', function () {
+        if (startHour.value) {
+            endHour.value = startHour.value.padStart(2, '0'); // 补零
+        }
+    });
+
+    startMinute.addEventListener('input', function () {
+        if (startMinute.value) {
+            endMinute.value = startMinute.value.padStart(2, '0'); // 补零
+        }
+    });
+
+    // 标签输入框回车事件
+    tagInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // 阻止表单提交
+            addTag(this.value);
+        }
+    });
+
+    // 日期选择器变更
+    datePicker.addEventListener('change', function() {
+        updateRecordsTable();
+        calculateTimeDistribution();
+    });
+
+    // 清除按钮
+    clearButton.addEventListener('click', function() {
+        showDeleteConfirmation('all');
+    });
+
+    // 导入按钮
+    importButton.addEventListener('click', function() {
+        showImportLinkModal();
+    });
+
+    // 确认删除
+    confirmDeleteButton.addEventListener('click', function() {
+        if (deleteType === 'record') {
+            deleteRecord(currentIndexToDelete);
+        } else {
+            clearRecords();
+        }
+        
+        deleteModal.classList.remove('visible');
+    });
+
+    // 取消删除
+    cancelDeleteButton.addEventListener('click', function() {
+        deleteModal.classList.remove('visible');
+    });
+
+    // 确认删除标签
+    confirmDeleteTagButton.addEventListener('click', function() {
+        deleteTag(currentTagToDelete);
+        deleteTagModal.classList.remove('visible');
+    });
+
+    // 取消删除标签
+    cancelDeleteTagButton.addEventListener('click', function() {
+        deleteTagModal.classList.remove('visible');
+    });
+
+    // 切换时间分配统计表
+    toggleSummaryButton.addEventListener('click', function() {
+        summaryContainer.classList.toggle('visible');
+        
+        if (summaryContainer.classList.contains('visible')) {
+            toggleSummaryButton.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                隐藏时间分配统计表
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+            `;
+        } else {
+            toggleSummaryButton.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                显示时间分配统计表
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            `;
+        }
+    });
+
+    // 主题切换
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // 更新弹窗关闭按钮
+    updateCloseButton.addEventListener('click', closeUpdateModal);
+    updateConfirmButton.addEventListener('click', closeUpdateModal);
+
+    // 自动匹配系统主题
+    function applySystemTheme() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', prefersDark);
+        localStorage.setItem('darkMode', prefersDark);
+        updateThemeIcon(prefersDark);
+    }
+
+    // 更新主题图标
+    function updateThemeIcon(isDark) {
+        themeToggle.innerHTML = isDark
+            ? '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+            : '<svg class="icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+
+    // 监听系统主题变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
+
+    // 获取所有时间输入框
+    const timeInputs = [startHour, startMinute, endHour, endMinute];
+
+    // 自动跳转焦点函数
+    function handleAutoTab(currentInput, nextInput) {
+        if (currentInput.value.length >= 2) {
+            nextInput.focus();
+            nextInput.select(); // 自动选中内容方便修改
+        }
+        
+        // 处理删除操作（当清空内容时返回前一个输入框）
+        if (currentInput.value === '' && event.inputType === 'deleteContentBackward') {
+            const prevIndex = timeInputs.indexOf(currentInput) - 1;
+            if (prevIndex >= 0) {
+                timeInputs[prevIndex].focus();
+                timeInputs[prevIndex].select();
+            }
+        }
+    }
+
+    // 为每个输入框添加事件监听
+    timeInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            // 自动补零（输入1会自动变成01）
+            if (e.target.value.length === 1 && e.target.value > 5 && e.target === startMinute) {
+                e.target.value = '0' + e.target.value;
+            }
+            
+            // 自动跳转逻辑
+            if (index < 3) { // 最后一个输入框不需要跳转
+                handleAutoTab(input, timeInputs[index + 1])
+            }
+            
+            // 自动同步结束时间小时（当开始小时变化时）
+            if (input === startHour && !endHour.value) {
+                endHour.value = input.value.padStart(2, '0');
+            }
+        });
+        
+        // 处理粘贴操作
+        input.addEventListener('paste', (e) => {
+            setTimeout(() => {
+                if (input.value.length >= 2) {
                     handleAutoTab(input, timeInputs[index + 1])
                 }
-                
-                // 自动同步结束时间小时（当开始小时变化时）
-                if (input === startHour && !endHour.value) {
-                    endHour.value = input.value.padStart(2, '0');
-                }
-            });
-            
-            // 处理粘贴操作
-            input.addEventListener('paste', (e) => {
-                setTimeout(() => {
-                    if (input.value.length >= 2) {
-                        handleAutoTab(input, timeInputs[index + 1])
-                    }
-                }, 0);
-            });
+            }, 0);
         });
+    });
 
-        // 初始自动聚焦开始小时
-        startHour.focus();
+    // 初始自动聚焦开始小时
+    startHour.focus();
 
-        // 初始加载时匹配系统主题
-        applySystemTheme();
-        
-        // 初始化
-        initializeDatePicker();
-        loadData();
-        loadTheme();
-        checkAppVersion(); // 检查应用版本并显示更新弹窗
-    </script>
+    // 初始加载时匹配系统主题
+    applySystemTheme();
     
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K6P6VQXH"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    
+    // 初始化
+    initializeDatePicker();
+    loadData();
+    loadTheme();
+    checkAppVersion(); // 检查应用版本并显示更新弹窗
+    checkImportParam(); // 检查URL中是否有导入参数
+</script>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K6P6VQXH"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+
 </body>
 </html>
